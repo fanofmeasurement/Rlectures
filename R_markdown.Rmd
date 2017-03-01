@@ -1,0 +1,201 @@
+---
+title: "Rmarkdown简介"
+author: "李峰"
+date: "2017年2月28日"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+#Rmarkdown简介
+
+---
+
+# 1. 标题
+
+为了获得上面的 “`1. 标题`”， 在 Markdown 编辑器里输入：
+
+~~~
+# 1. 标题
+~~~
+
+“`#`” 后最好加个空格。除此之外，还有 5 级标题，依次有不同的字体大小，即
+
+~~~
+## 二级标题
+### 三级标题
+#### 四级标题
+##### 五级标题
+###### 六级标题
+~~~
+这样就有：
+
+## 二级标题
+### 三级标题
+#### 四级标题
+##### 五级标题
+###### 六级标题
+
+
+
+---
+
+# 2. 加粗，斜体
+
+最常用的强调方式，那就是 **加粗** 了，你得这样：
+
+~~~
+最常用的强调方式，那就是 **加粗** 了，你得这样：
+~~~
+
+通常我喜欢在 “`**加粗的部分**`” 旁边各加一个空格，当然你也可以不这样。
+斜体则多用在于书名，比如：我正在看 *Mind in the Making: The Seven Essential Life Skills Every Child Needs*
+
+~~~
+斜体则多用在于书名，比如：我正在看过 *Mind in the Making: The Seven Essential Life Skills Every Child Needs*
+~~~
+
+但中文的斜体真的很丑，像：《*基于R的统计分析与数据挖掘*》
+
+---
+
+# 3. 层次
+
+比如写个华创报告，你得
+
+#### 第一章
+
+1. 第一节
+* 第二节(你不用敲 "2"，自动就有了）
+    * 第一小节（推荐每层次缩进四个空格）
+        * 小小节 1
+        * 小小节 2
+    * 第二小节
+
+也不难：
+
+~~~
+#### 第一章
+
+1. 第一节
+* 第二节(你不用敲 "2"，自动就有了）
+    * 第一小节（推荐每层次缩进四个空格）
+        * 小小节 1
+        * 小小节 2
+    * 第二小节
+~~~
+
+“`*`” 后面要加空格，这是必须的，除了 `*`，还可以使用 `+` 或者 `-`。
+
+
+---
+
+# 4. 链接，图片
+
+你：我没听过 *岳云鹏*的相声  
+我：你可以去死了！  
+你：。。。  
+我：我也没听过，但是，岳云鹏喜欢[***Jane Eyre***](https://book.douban.com/subject/1141406/) 这本书  
+
+![Jane Eyre](https://img5.doubanio.com/lpic/s5924326.jpg)
+
+---
+  
+~~~
+
+你：我没听过 *岳云鹏*的相声  
+我：你可以去死了！  
+你：。。。  
+我：我也没听过，但是，岳云鹏喜欢[***Jane Eyre***](https://book.douban.com/subject/1141406/)这本书
+![Jane Eyre](https://img5.doubanio.com/lpic/s5924326.jpg)
+
+~~~
+
+
+
+
+# 5. 引用
+
+
+> Markdown is not LaTeX.
+
+
+
+
+为了使用rmarkdown，也许你需要以下包:
+
+> library(knitr)  
+library(rmarkdown)  
+library(rprojroot)  
+library(backports)  
+library(evaluate)  
+
+
+
+# 6. 代码块
+
+一段 _代码块_ 如下. 记住如何嵌套进R的代码，运行结果会显示在代码下面，运行后的结果会出现在文本里:
+
+```{r}
+1+1
+.4-.7+.3 # 为什么结果不是零？!
+```
+
+---
+
+~~~
+```{r}
+1+1
+.4-.7+.3 # 为什么结果不是零？!
+```
+~~~
+
+```{r}
+strsplit('hello indented world', ' ')[[1]]
+```
+
+
+或者以**引用**的形式出现：
+
+> Here is a quote, followed by a code chunk:
+>
+> ```{r}
+> x = 1:10
+> rev(x^2)
+> ```
+
+也可以在文内出现程序运行结果，如pi的值是 `r pi`, 2倍的pi值是 `r 2*pi`。
+
+
+
+# 7. 画图
+
+
+
+```{r}
+plot(1:10)
+hist(rnorm(1000))
+```
+
+# 8. 表格
+
+ |   姓名 |  学 号 |   专 业  |  联系方式 |
+ |:------:|:------:|:-------: |:---------:|
+ | 余子琳 | 100001 | 应用统计 | 382038080 |
+ | 谈一卓 | 100002 | 经济统计 | 329840480 |
+ | 王雨芯 | 100003 | 数理统计 | 289448984 |
+
+
+# 9. 数学公式
+
+Sigh. You cannot live without math equations. OK, here we go: $\alpha+\beta=\gamma$. Note this is not supported by native markdown. You probably want to try RStudio, or at least the R package **rmarkdown**.
+
+
+# 10. 了解更多
+
+了解更多*rmarkdown*，可以登陆`knitr`的开发者**谢益辉**的页面 [knitr website](http://yihui.name/knitr/).
+
+![knitr logo](http://yihui.name/knitr/images/knit-logo.png)
+
+

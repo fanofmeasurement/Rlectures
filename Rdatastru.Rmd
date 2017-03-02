@@ -106,7 +106,7 @@ print(a)
 ```
 
 
-`sink`可将程序运行结果保存到一个制定的文本文件里，如果后续输出结果不再需要，在相应行写`sind()`
+`sink`可将程序运行结果保存到一个制定的文本文件里，如果后续输出结果不再需要，在相应行写`sink()`
 ```{r}
 sink("MyOutput.txt",append=FALSE,split=FALSE)
 a<-c(1,2,3)

@@ -1,0 +1,225 @@
+---
+title: "R的数据组织之二"
+author: "李峰"
+date: "2017年3月8日"
+output:
+  html_document: default
+---
+
+
+---
+
+## 1. 数据对象类型判断和转换
+
+### 存储类型
+
+#### 数据对象存储类型判断，可以用**is.类型名（对象名）**的方式进行判断，也可以直接用**typeof(对象名)**的方式进行。
+
+```{r}
+a<-123.4
+is.numeric(a)
+is.integer(a)
+is.double(a)
+is.character(a)
+is.logical(a)
+b<-"123.4"
+typeof(b)
+c<-TRUE
+typeof(c)
+rm(a,b,c)
+```
+
+---
+
+
+#### 存储类型的转换
+
+```{r}
+a<-123.4
+(a<-as.integer(a))   # 赋值语句外面加括号可以直接print其值
+typeof(a)
+a<-123.4
+(a<-as.character(a))
+typeof(a)
+a<-"abcd"
+(a<-as.double(a))    #555555，臣妾做不到啊
+a<-TRUE
+(a<-as.integer(a))   # 逻辑型转换为整数型后，值为1或0
+typeof(a)            # 相应的，只有1或0的数值型对象才能转换为逻辑型
+a<-TRUE
+(a<-as.character(a))
+typeof(a)
+rm(a)
+```
+
+
+
+---
+
+>  BTW，如何让代码在knitr编译过的文本里隐身，看着辣眼睛
+
+
+```{r,echo=0}
+a<-1
+```
+
+
+
+---
+
+#### 结构类型间的转换
+
+#####　A. 向量和矩阵间的转换
+
+```{r}
+(a<-c(1:10))
+(b<-matrix(a,nrow=5,ncol=2,byrow=TRUE)) # 指定矩阵的行列个数，以及从哪开始排
+(a<-as.matrix(a))
+is.matrix(a)
+(b<-as.vector(b))                      # 转向量，默认以列为单位从左向右排
+is.vector(b)
+rm(a,b)
+```
+
+
+---
+
+##### B. 向量转因子
+
+因子是特殊类型的向量，从概念上和SPSS的variable view里measurement里的nominal和ordinal类似，也包括两种，一种是nominal的，一种是ordinal的。
+其存储类型是integer的。
+向量转因子的核心是如何将向量里的k个类别和因子的k个水平对应。
+
+---
+
+##### nominal类型
+```{r}
+(a<-c("Poor","Improved","Excellent","Poor")) 
+is.vector(a)
+(b<-as.factor(a))
+is.factor(b)
+levels(b)   # 按字母升序显示因子水平值对应的类别值
+typeof(b)
+```
+
+---
+
+##### ordinal类型
+
+```{r}
+(a<-c("Poor","Improved","Excellent","Poor")) 
+(b<-factor(a,order=FALSE,levels=c("Poor","Improved","Excellent")))  
+(b<-factor(a,order=TRUE,levels=c("Poor","Improved","Excellent")))
+```
+
+
+重新设定个水平值对应的类别值
+
+```{r}
+(a<-c("Poor","Improved","Excellent","Poor")) 
+(b<-factor(a,levels=c("Poor","Improved","Excellent")))  
+(b<-factor(a,levels=c("Poor","Improved","Excellent"),labels=c("C","B","A")))  
+rm(a,b)
+```
+
+**注意，factor的存储类型是integer，显示出来的其实是其标签，character转换为factor的时候，其字符被转换为了数字的标签，可以修改这个标签**
+
+
+##### 借助类型转换增加因子的水平
+
+```{r}
+(a<-c("A","C","B","C")) 
+(b<-as.factor(a))
+b[5]<-"D"                # 臣妾又错了
+c<-as.vector(b)
+typeof(c)
+c[5]<-"D"
+(b<-as.factor(c))
+```
+
+---
+
+
+对factor进行summary时，仅计算其频数，而不做其他
+
+```{r}
+patientID <- c(1, 2, 3, 4)
+age <- c(25, 34, 28, 52)
+diabetes <- c("Type1", "Type2", "Type1", "Type1")
+status <- c("Poor", "Improved", "Excellent", "Poor")
+diabetes <- factor(diabetes)
+status <- factor(status, order = TRUE)
+patientdata <- data.frame(patientID, age, diabetes, 
+    status)
+str(patientdata)
+summary(patientdata)
+```
+
+
+---
+
+
+## 2. 从文本文件读数据
+
+#### scan读向量，需要各列数据存储类型相同
+
+
+> Forest<-scan(file="ForestData.txt",what=double(),skip=1)  # 你砍了臣妾吧
+
+---
+
+#### read.table读到data.frame，字串会自动转因子
+
+```{r}
+Forest<-read.table(file="ForestData.txt",header=TRUE)
+str(Forest)
+names(Forest)          # variable names
+Forest<-read.table(file="ForestData.txt",header=TRUE,stringsAsFactors=FALSE)
+Forest<-read.table(file="ForestData.txt",header=TRUE,
+  colClass=c("integer","integer","character","character","double","integer","double","double","double"))
+Forest$month<-factor(Forest$month,order=TRUE,levels=c("jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"))
+str(Forest)
+```
+
+
+---
+
+## 3. 读外部数据
+
+#### 读取SPSS数据
+
+
+```{r}
+library(foreign)
+Forest<-read.spss(file="ForestData.sav",use.value.labels = TRUE, to.data.frame = TRUE)
+str(Forest)
+```
+
+---
+
+#### 读取excel数据
+需要先安装包xlsx
+
+> install.packages("xlsx")
+
+```{r}
+library("xlsx")
+Forest<-read.xlsx("ForestData.xlsx",1,header=TRUE,as.data.frame=TRUE)
+str(Forest)
+levels(Forest$month)
+Forest$month<-factor(Forest$month,order=TRUE,levels=c("jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"))
+levels(Forest$month)
+```
+
+---
+
+#### R自带数据集的使用
+
+```{r}
+data()
+data("AirPassengers")
+```
+
+
+
+

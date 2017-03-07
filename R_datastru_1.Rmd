@@ -1,14 +1,11 @@
 ---
-title: "R的数据组织"
+title: "R的数据组织之一"
 author: "李峰"
 date: "2017年2月28日"
 output:
   html_document: default
-  pdf_document: default
-  word_document: default
 ---
 
-#R的数据组织
 
 ---
 

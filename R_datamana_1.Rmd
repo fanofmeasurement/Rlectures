@@ -1,0 +1,406 @@
+---
+title: "R的数据管理之一"
+author: "李峰"
+date: "2017年3月15日"
+output:
+  html_document: default
+---
+
+
+---
+
+
+```{r,echo=FALSE}
+manager <- c(1, 2, 3, 4, 5)
+date <- c("10/24/08", "10/28/08", "10/1/08", "10/12/08", 
+    "5/1/09")
+gender <- c("M", "F", "F", "M", "F")
+age <- c(32, 45, 25, 39, 99)
+q1 <- c(5, 3, 3, 3, 2)
+q2 <- c(4, 5, 5, 3, 2)
+q3 <- c(5, 2, 5, 4, 1)
+q4 <- c(5, 5, 5, NA, 2)
+q5 <- c(5, 5, 2, NA, 1)
+leadership <- data.frame(manager, date, gender, age, 
+    q1, q2, q3, q4, q5, stringsAsFactors = FALSE)
+rm(manager, date, gender, age, q1, q2, q3, q4, q5)
+```
+
+## 1. 数据管理
+
+* 对数据框，根据关键字的合并，使用*merge*函数
+
+```{r}
+ReportCard1<-read.table(file="ReportCard1.txt",header=TRUE)
+names(ReportCard1)
+ReportCard2<-read.table(file="ReportCard2.txt",header=TRUE)
+names(ReportCard2)
+ReportCard<-merge(ReportCard1,ReportCard2,by="xh")
+names(ReportCard)
+fix(ReportCard)
+```
+
+
+* 对矩阵，可根据行向进行合并，使用*cbind*函数，使用前保证有相同的行排列顺序
+
+
+
+数据的aggregate
+
+```{r}
+options(digits=3)
+attach(mtcars)
+aggdata <-aggregate(mtcars, by=list(cyl,gear), 
+    FUN=mean, na.rm=TRUE)                      # FUN是函数
+aggdata
+mtcars
+```
+
+
+
+
+
+
+## 2. 数据排序
+
+* 数据的排序可以帮助我们很快找到缺失值。
+* R的排序功能返回一个位置向量，和MATLAB一样，这个功能可先对一个矩阵按照某列进行排序，得到位置向量，再要求另一个矩阵按照这个顺序进行排列，保证两个矩阵都按照相同的顺序按行排列。
+
+
+
+
+```{r}
+Ord<-order(ReportCard$math,na.last=TRUE,decreasing=TRUE) 
+# na.last=TRUE，表示缺失值排最后，若参数值是FALSE，则排最前，若NA，则不参与排序
+# decreasing选择升序还是降序
+Ord
+a<-ReportCard[Ord,]
+fix(a)
+```
+
+
+```{r}
+Ord<-order(+ReportCard$sex,-ReportCard$math,na.last=TRUE)
+# 对sex升序，对math降序
+Ord
+a<-ReportCard[Ord,]
+fix(a)
+```
+
+# 3. 缺失数据报告
+
+
+* R的缺失也有两类，sysmis和user missing，前者是*NA*(Not Avaliable)，后者是*NaN*(Not a Number)。
+
+* 判断缺失值，使用*is.na*和*is.nan*，对向量中的每个元素做判断，*is.na*返回的结果包含NaN。
+
+```{r}
+a<-is.na(ReportCard$math)
+# 若存在na，则返回TRUE
+ReportCard[a,]
+```
+
+* 判断矩阵或数据框的每一行是否有缺失
+
+```{r}
+a<-complete.cases(ReportCard)
+# 若此行无缺失，则返回TRUE，有则返回FALSE
+ReportCard[!a,]
+# !是“否”的运算符，!a表示将有有缺失的数据列出
+```
+
+
+* 得到缺失报告
+
+```{r}
+# install.packages("mice")
+library("mice")
+md.pattern(ReportCard) # 注意，这真的是个pattern
+```
+
+* 如何处理缺失数据
+
+```{r}
+ReportCard<-na.omit(ReportCard) # 相对于pairwise，简单粗暴的listwise
+md.pattern(ReportCard)
+```
+
+
+
+
+## 3. 变量计算
+
+
+* 对象的基本运算
+
+
+```{r}
+attach(ReportCard)           # 将变量框读到内存，你行你上
+SumScore<-poli+chi+math+fore+phy+che+geo+his
+detach(ReportCard)           # 将变量框从内存施放出来，不行下来
+AvScore<-SumScore/8
+ReportCard$sumScore<-SumScore
+ReportCard$avScore<-AvScore
+names(ReportCard)
+fix(ReportCard)
+a<-is.na(ReportCard$sumScore) # is.na返回的结果包含NaN
+ReportCard[a,]
+sum(is.na(ReportCard$sumScore))
+mean(complete.cases(ReportCard$sumScore)) # 这算的是个啥？
+```
+
+
+
+
+
+```{r}
+a <- 5
+sqrt(a)
+b <- c(1.243, 5.654, 2.99)
+round(b)
+c <- matrix(runif(12), nrow=3)
+c
+log(c)  #自然对数 
+log10(c) 
+mean(c)
+```
+
+
+
+```{r}
+x <- c(1, 2, 3, 4, 5, 6, 7, 8)
+mean(x)
+sd(x)
+n <- length(x)
+meanx <- sum(x)/n
+css <- sum((x - meanx)**2)            
+sdx <- sqrt(css / (n-1))
+meanx
+sdx
+```
+
+利用apply求各列均值
+
+```{r}
+mydata <- matrix(rnorm(30), nrow=6)
+mydata
+apply(mydata, 1, mean)             # 行均值  
+apply(mydata, 2, mean)             # 列均值
+apply(mydata, 2, mean, trim=.2)    # 截尾的列均值，最高和最低的20%被忽略
+```
+
+
+
+
+
+
+* 概率函数
+
+
+```{r}
+x<-seq(from=-3,to=3,by=0.05)
+y<-dnorm(x,0,1)
+plot(x,y,type="l",ylab="密度",main="正态分布的密度函数曲线图") 
+```
+
+伪随机数
+
+```{r}
+runif(5)
+runif(5)
+set.seed(1234)                                                     
+runif(5)
+set.seed(1234)                                                      
+runif(5)
+```
+
+多元正态分布
+
+
+```{r}
+# install.packages("MASS")
+library(MASS)
+mean <- c(230.7, 146.7, 3.6)                                           
+sigma <- matrix( c(15360.8, 6721.2, -47.1,                              
+                    6721.2, 4700.9, -16.5,
+                     -47.1,  -16.5,   0.3), nrow=3, ncol=3)
+
+mydata <- mvrnorm(500, mean, sigma)                                     
+mydata <- as.data.frame(mydata)                                         
+names(mydata) <- c("y", "x1", "x2")                                       
+
+dim(mydata)                                                             
+head(mydata, n=10)   
+```
+
+
+
+* 用户自定义函数
+
+```{r}
+MyFun<-function(dataname1=x1,dataname2=x2,key=c){
+ result<-merge(dataname1,dataname2,by=key)
+ return(result)
+}
+
+# 函数名 myfun  R是你的快乐？
+# function 是命令
+# 小括号里是形参
+# 大括号里是函数体，就是函数的功能部分，函数体部分是局部变量，仅存在于你的小世界（大括号里）
+# return 是函数调用的结果返回
+# 先定义，再调用
+
+```
+
+```{r}
+MyData<-MyFun(dataname1=ReportCard1,dataname2=ReportCard2,key="xh")
+MyData<-MyFun(ReportCard1,ReportCard2,"xh")   # 这个调用有点随意
+```
+
+
+
+
+
+
+
+
+* 矩阵的计算
+
+    * 矩阵合并
+```{r}
+(m1<-matrix(1,nrow=2,ncol=2))
+(m2<-matrix(2,nrow=2,ncol=2))
+(mm1<-cbind(m1,m2))
+(mm2<-rbind(m1,m2))
+```
+
+
+    * 矩阵乘法
+```{r}
+(mm3<-mm1%*%mm2)
+(mm3<-mm2%*%mm1)
+```
+
+
+    * 矩阵创建
+
+```{r}
+diag(8)  #创建8乘8的单位阵
+diag(c(1,2,3,4)) 
+diag(c(1,2,3,4),nrow=3,ncol=4) 
+```
+
+
+    * 访问正对角元素
+
+```{r}
+diag(mm3)  ##提取对角元素
+diag(mm3)<-10 
+mm3
+diag(mm3)<-c(1,2,3,4)
+mm3
+```
+
+
+    * 矩阵转置
+
+```{r}
+(mm3<-matrix(1:9,nrow=3,ncol=3,byrow=TRUE))
+t(mm3)
+```
+
+
+    * 求逆
+
+```{r}
+mm3<-diag(c(1,2,3,4))
+solve(mm3)   ##求矩阵mm4的逆矩阵
+```
+
+
+    * 求特征根和特征向量
+
+```{r}
+eigen(mm3)  ##求矩阵的特征值和特征向量
+```
+
+rm(m1,m2,mm1,mm2,mm3)
+    
+## 4. 变量的RECODE   
+
+
+* 对连续变量进行分类
+
+
+
+```{r}
+ReportCard<-within(ReportCard,{
+ avScore[avScore>=90]<-"A"
+ avScore[avScore>=80 & avScore<90]<-"B"
+ avScore[avScore>=70 & avScore<80]<-"C"
+ avScore[avScore>=60 & avScore<70]<-"D"
+ avScore[avScore<60]<-"E"
+ })
+flag<-ReportCard$avScore %in% c("A","B","C","D","E")
+ReportCard$avScore[!flag]<-NA
+```
+
+
+* 重新定义类别
+
+```{r}
+unique(ReportCard$sex)   #获得性别的取值，检查性别取值范围是否正确
+ReportCard$sex<-factor(ReportCard$sex,levels=c(1,2),labels=c("M","F"))
+str(ReportCard$sex)
+```
+
+* 把某些值编码为缺失值
+
+```{r}
+leadership[leadership$age == 99, "age"] <- NA
+leadership
+```
+
+
+```{r}
+aa<-complete.cases(leadership)
+leadership[!aa,]
+```
+
+
+
+
+另一个例子
+
+
+```{r}
+leadership$agecat[leadership$age > 75] <- "Elder"
+leadership$agecat[leadership$age > 45 & 
+    leadership$age <= 75] <- "Middle Aged"
+leadership$agecat[leadership$age <= 45] <- "Young"
+```
+
+```{r}
+leadership <- within(leadership, {
+    agecat <- NA
+    agecat[age > 75] <- "Elder"
+    agecat[age >= 55 & age <= 75] <- "Middle Aged"
+    agecat[age < 55] <- "Young"
+})
+```
+
+## 5. 其他
+
+* 变量重命名,使用*reshape*包里的*rename*
+
+```{r}
+# install.packages("reshape")
+library(reshape)
+rename(leadership, c(manager = "managerID", date = "testDate"))
+```
+
+
+
+
+
+

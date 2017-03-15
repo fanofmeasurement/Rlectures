@@ -26,7 +26,7 @@ leadership <- data.frame(manager, date, gender, age,
 rm(manager, date, gender, age, q1, q2, q3, q4, q5)
 ```
 
-## 1. 数据管理
+## 1. 数据合并和整合
 
 * 对数据框，根据关键字的合并，使用*merge*函数
 
@@ -59,8 +59,6 @@ mtcars
 
 
 
-
-
 ## 2. 数据排序
 
 * 数据的排序可以帮助我们很快找到缺失值。
@@ -87,7 +85,7 @@ a<-ReportCard[Ord,]
 fix(a)
 ```
 
-# 3. 缺失数据报告
+## 3.缺失数据报告
 
 
 * R的缺失也有两类，sysmis和user missing，前者是*NA*(Not Avaliable)，后者是*NaN*(Not a Number)。
@@ -128,7 +126,7 @@ md.pattern(ReportCard)
 
 
 
-## 3. 变量计算
+## 4. 变量计算
 
 
 * 对象的基本运算
@@ -259,14 +257,8 @@ MyData<-MyFun(ReportCard1,ReportCard2,"xh")   # 这个调用有点随意
 
 
 
+* 矩阵合并
 
-
-
-
-
-* 矩阵的计算
-
-    * 矩阵合并
 ```{r}
 (m1<-matrix(1,nrow=2,ncol=2))
 (m2<-matrix(2,nrow=2,ncol=2))
@@ -274,15 +266,14 @@ MyData<-MyFun(ReportCard1,ReportCard2,"xh")   # 这个调用有点随意
 (mm2<-rbind(m1,m2))
 ```
 
+* 矩阵乘法
 
-    * 矩阵乘法
 ```{r}
 (mm3<-mm1%*%mm2)
 (mm3<-mm2%*%mm1)
 ```
 
-
-    * 矩阵创建
+* 矩阵创建
 
 ```{r}
 diag(8)  #创建8乘8的单位阵
@@ -290,8 +281,7 @@ diag(c(1,2,3,4))
 diag(c(1,2,3,4),nrow=3,ncol=4) 
 ```
 
-
-    * 访问正对角元素
+* 访问正对角元素
 
 ```{r}
 diag(mm3)  ##提取对角元素
@@ -301,24 +291,21 @@ diag(mm3)<-c(1,2,3,4)
 mm3
 ```
 
-
-    * 矩阵转置
+* 矩阵转置
 
 ```{r}
 (mm3<-matrix(1:9,nrow=3,ncol=3,byrow=TRUE))
 t(mm3)
 ```
 
-
-    * 求逆
+* 求逆
 
 ```{r}
 mm3<-diag(c(1,2,3,4))
 solve(mm3)   ##求矩阵mm4的逆矩阵
 ```
 
-
-    * 求特征根和特征向量
+* 求特征根和特征向量
 
 ```{r}
 eigen(mm3)  ##求矩阵的特征值和特征向量
@@ -326,7 +313,7 @@ eigen(mm3)  ##求矩阵的特征值和特征向量
 
 rm(m1,m2,mm1,mm2,mm3)
     
-## 4. 变量的RECODE   
+## 5. 变量的RECODE   
 
 
 * 对连续变量进行分类
@@ -389,7 +376,7 @@ leadership <- within(leadership, {
 })
 ```
 
-## 5. 其他
+## 6. 其他
 
 * 变量重命名,使用*reshape*包里的*rename*
 

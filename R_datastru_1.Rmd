@@ -55,10 +55,10 @@ detach("package:knitr")
 getwd()
 ```
 
-修改工作目录
-```{r}
-setwd("C:\\Users\\leefe_000\\SkyDrive\\LECTURES\\R\\week2")
-```
+<!-- 修改工作目录 -->
+<!-- ```{r} -->
+<!-- setwd("C:\\Users\\leefe_000\\SkyDrive\\LECTURES\\R\\week2") -->
+<!-- ``` -->
 
 
 ---

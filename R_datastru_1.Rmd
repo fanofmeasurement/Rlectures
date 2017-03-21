@@ -55,10 +55,17 @@ detach("package:knitr")
 getwd()
 ```
 
+<<<<<<< HEAD
 修改工作目录
-```{r}
-setwd("C:\\Users\\leefe_000\\SkyDrive\\LECTURES\\R\\week2")
-```
+# ```{r}
+# setwd("C:\\Users\\leefe_000\\SkyDrive\\LECTURES\\R\\week2")
+# ```
+=======
+<!-- 修改工作目录 -->
+<!-- ```{r} -->
+<!-- setwd("C:\\Users\\leefe_000\\SkyDrive\\LECTURES\\R\\week2") -->
+<!-- ``` -->
+>>>>>>> 07c3bba8ddbcec50ba0cf9352469ffe29ed3ba59
 
 
 ---
@@ -252,7 +259,7 @@ patientdata <- data.frame(patientID, age, diabetes,
 patientdata
 ```
 
-制定数据框中的元素
+指定数据框中的元素
 ```{r}
 patientdata[1:2]
 patientdata[c("diabetes", "status")]

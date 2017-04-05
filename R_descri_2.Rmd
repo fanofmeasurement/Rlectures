@@ -1,0 +1,358 @@
+---
+title: "R的描述统计之二"
+author: "李峰"
+date: '`r strftime(Sys.time(), format = "%B %d, %Y")`'
+output:
+  html_document: default
+---
+
+
+
+```{r,echo=F}
+ReportCard<-read.table(file="ReportCard.txt",header=TRUE,sep=" ")
+```
+
+
+
+
+
+####  1. 数值型双变量描述
+
+
+#####　1.1 计算相关系数和协方差
+
+* 使用*cor*和*cov*来计算
+
+
+ |  参数  |                           描述                           | 
+ |:------:|:---------------------------------------------------------:|
+ | x      | 矩阵或数据框 | 
+ | use    | 缺失数据的处理方式，all.obs则有缺失值时报错，everthing，有缺失值时结果为missing，complete.obs是行删除，pairwise.complete.obs成对删除| 
+ | method | 可选person,spearman和kendal | 
+
+
+```{r}
+Tmp<-ReportCard[complete.cases(ReportCard),]
+(CorMatrix<-cor(Tmp[,c(5,7,8)],use="everything",method="pearson"))
+(CovMatrix<-cov(Tmp[,c(5,7,8)],use="complete.obs",method="pearson"))
+rm(Tmp)
+```
+
+用R自带的数据
+
+```{r}
+states <- state.x77[, 1:6]
+cov(states)
+cor(states)
+cor(states, method="spearman")
+```
+
+还可以不得到相关系数的方阵
+
+```{r}
+x <- states[, c("Population", "Income", "Illiteracy", "HS Grad")]
+y <- states[, c("Life Exp", "Murder")]
+cor(x, y)
+```
+
+* 计算偏相关系数
+
+可以用**corpcor**包里的*cor2pcor*。
+
+```{r}
+# install.packages("corpcor")
+library("corpcor")
+Tmp<-ReportCard[complete.cases(ReportCard),]
+(CorMatrix<-cor(Tmp[,c(5,7,8)],use="everything",method="pearson"))
+(cor2pcor(CorMatrix))
+```
+
+也可以用**ggm**包里的*pcor*，pcor对第一个参数的前两列计算偏相关系数，后面的则作为控制变量。
+
+```{r}
+# install.packages("ggm")
+# install.packages("igraph")
+library(igraph)
+library(ggm)
+colnames(states)
+pcor(c(1, 5, 2, 3, 6), cov(states))
+```
+
+
+#####　1.2 相关系数的显著性检验
+
+
+```{r}
+cor.test(Tmp[,5],Tmp[,7],alternative="two.side",method="pearson")
+```
+
+利用**psych**包一次检验多个相关系数。
+
+```{r}
+# install.packages("psych")
+library(psych)
+corr.test(states, use = "complete")
+```
+
+
+#####　1.3 相关系数的可视化
+
+* 两个变量
+
+我最朴素
+
+```{r}
+Forest<-read.table(file="ForestData.txt",header=TRUE,sep="	")
+plot(Forest$temp,Forest$RH,main="森林地区温度和相对湿度的散点图",xlab="温度",ylab="相对湿度",cex.main=0.8,cex.lab=0.8)
+
+```
+
+增加线性预测方程和局部多项式回归拟合线
+
+```{r}
+plot(RH~temp,data=Forest,main="森林地区温度和相对湿度的散点图",xlab="温度",ylab="相对湿度",cex.main=0.8,cex.lab=0.8)
+M0<-lm(RH~temp,data=Forest)    
+abline(M0$coefficients)
+M.Loess<-loess(RH~temp,data=Forest)
+Ord<-order(Forest$temp)  ##按x轴取值排序后再绘图
+lines(Forest$temp[Ord],M.Loess$fitted[Ord],lwd=1,lty=1,col=2)
+```
+
+增加噪声，减少重叠（效果似乎不明显）
+
+```{r}
+plot(jitter(Forest$RH,factor=1)~jitter(Forest$temp,factor=1),main="森林地区温度和相对湿度的高密度处理散点图",xlab="温度",ylab="相对湿度",cex.main=0.8,cex.lab=0.8)
+```
+
+利用色差突出数据密集区域
+
+```{r}
+smoothScatter(x=Forest$temp,y=Forest$RH,main="森林地区温度和相对湿度的高密度处理散点图",xlab="温度",ylab="相对湿度",cex.main=0.8,cex.lab=0.8)
+```
+
+
+分箱散点图
+```{r}
+# install.packages("hexbin")
+library("hexbin")
+bin<-hexbin(Forest$temp,Forest$RH,xbins=30)
+plot(bin,main="森林地区温度和相对湿度的高密度处理散点图",xlab="温度",ylab="相对湿度")
+
+```
+
+
+
+* 三个变量
+
+三维立体图
+
+```{r}
+# install.packages("scatterplot3d")
+library("scatterplot3d")
+with(Forest,scatterplot3d(temp,RH,wind,main="森林地区温度、相对湿度和风力的三维散点图",xlab="温度",ylab="相对湿度",zlab="风力",cex.main=0.7,cex.lab=0.7,cex.axis=0.7))
+
+```
+
+没有填色的气泡图
+
+```{r}
+with(Forest,symbols(temp,RH,circle=wind,inches=0.1,main="森林地区温度、相对湿度和风力的汽泡图",xlab="温度",ylab="相对湿度",cex.main=0.7,cex.lab=0.7,cex.axis=0.7))
+```
+
+
+填色(*bg*)的气泡图
+```{r}
+with(Forest,symbols(temp,RH,circle=wind,inches=0.1,main="森林地区温度、相对湿度和风力的汽泡图",xlab="温度",ylab="相对湿度",cex.main=0.7,cex.lab=0.7,cex.axis=0.7,fg="white",bg="darkorange2"))
+```
+
+
+
+* 3+变量
+
+```{r}
+pairs(~temp+RH+wind+rain,data=Forest,main="森林地区温度、相对湿度、风力和雨量的矩阵散点图")
+```
+
+
+
+```{r}
+# install.packages("car")
+library("car")
+scatterplotMatrix(~temp+RH+wind+rain,data=Forest,main="森林地区温度、相对湿度、风力和雨量的矩阵散点图",smoother=2,spread=FALSE)
+
+```
+
+
+```{r}
+ReportCard<-na.omit(ReportCard)
+cor(ReportCard[,3:10])
+# install.packages("corrgram")
+library("corrgram")
+corrgram(ReportCard[,3:10],lower.panel=panel.shade,upper.panel=panel.pie,text.panel=panel.txt,main="成绩的相关系数图")
+```
+
+```{r}
+corrgram(ReportCard[,3:10],lower.panel=panel.ellipse,upper.panel=panel.pts,diag.panel=panel.minmax,main="成绩的相关系数图")
+```
+
+
+* 分组散点图
+
+```{r}
+Forest$month<-factor(Forest$month,levels=c("jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"))
+coplot(RH~temp|month,pch=9,data=Forest,xlab="温度",ylab="相对湿度")
+```
+
+
+```{r}
+coplot(RH~temp|wind,number=6,pch=1,data=Forest,xlab="温度",ylab="相对湿度")
+```
+
+```{r}
+coplot(RH~temp|as.factor(X)*as.factor(Y),pch=1,data=Forest,xlab="温度",ylab="相对湿度")
+```
+
+
+
+---
+
+
+####  2. 分类变量相关性分析
+
+
+#####　2.1 描述
+
+
+* 单变量
+
+```{r}
+(avFreTable<-table(Tmp$avScore))
+prop.table(avFreTable)
+prop.table(avFreTable)*100
+```
+
+
+
+* 二维列联表
+
+```{r}
+(CrossTable<-table(ReportCard[,c(2,12)]))
+(CrossTable<-xtabs(~sex+avScore,data=ReportCard))
+```
+
+* 边际频数、百分比
+
+```{r}
+margin.table(CrossTable,1)
+margin.table(CrossTable,2)
+prop.table(CrossTable,1)*100
+prop.table(CrossTable,2)*100
+prop.table(CrossTable)*100
+```
+
+* 进一步丰富表的内容
+
+```{r}
+addmargins(CrossTable)
+addmargins(prop.table(CrossTable,1)*100,2)
+addmargins(prop.table(CrossTable,2)*100,1)
+addmargins(prop.table(CrossTable)*100)
+```
+
+* 也可以使用**gmodels**包
+
+```{r}
+# install.packages("gmodels")
+library("gmodels")
+CrossTable(ReportCard$sex,ReportCard$avScore)
+```
+
+
+
+
+#####　2.2 分类变量相关性的检验
+
+
+```{r}
+(CrossTable<-table(Tmp[,c(2,12)]))
+(ResChisq<-chisq.test(CrossTable,correct=FALSE))
+ResChisq$expected
+```
+
+* phi系数适用于2×2的表，列联系数和Cramer's V系数适用于2×2维以上的表
+
+```{r}
+# install.packages("vcd")
+library("vcd")
+assocstats(CrossTable)
+```
+
+
+#####　2.3 分类变量相关性的可视化
+
+
+* 簇状柱形图
+
+```{r}
+NumGrade<-table(ReportCard$sex,ReportCard$avScore)
+barplot(NumGrade,col=c(2,3),beside=TRUE,xlab="平均分等级",ylab="人数",ylim=c(0,15),names.arg=c("良","中","及格","不及格"))
+legend("topright",c("女","男"),pch=c(15,15),col=c(2,3))
+```
+
+
+* 堆积柱形图
+
+```{r}
+NumGrade<-t(NumGrade)
+barplot(NumGrade,col=rainbow(4),beside=FALSE,xlab="性别",ylab="人数",ylim=c(0,30),names.arg=c("女生","男生"))
+legend("topright",c("B","C","D","E"),pch=c(15,15,15,15),col=rainbow(4),horiz=TRUE,cex=0.8)
+```
+
+
+
+* 饼图
+
+```{r}
+NumGrade<-table(ReportCard$avScore)
+pie(NumGrade,cex=0.8,main="平均分等级饼图",cex.main=0.8)
+```
+
+
+
+```{r}
+Pct<-round(NumGrade/length(ReportCard$avScore)*100,2)
+GLabs<-paste(c("B","C","D","E"),Pct,"%",sep=" ")
+pie(NumGrade,labels=GLabs,cex=0.8,main="平均分等级饼图",cex.main=0.8)
+```
+
+
+```{r}
+# install.packages("plotrix")
+library("plotrix")
+pie3D(NumGrade,labels=GLabs,labelcex=0.7,explode=0.1,main="平均分等级饼图",cex.main=0.8)
+
+```
+
+
+
+```{r}
+fan.plot(NumGrade,labels=GLabs)
+title(main="平均分等级扇形图",cex.main=0.8)
+```
+
+
+* 马赛克图
+
+```{r}
+library("vcd")
+mosaic(~sex+avScore,data=ReportCard,shade=TRUE,legend=TRUE)
+```
+
+
+
+
+
+
+
+
+

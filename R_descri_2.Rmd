@@ -35,7 +35,6 @@ ReportCard<-read.table(file="ReportCard.txt",header=TRUE,sep=" ")
 Tmp<-ReportCard[complete.cases(ReportCard),]
 (CorMatrix<-cor(Tmp[,c(5,7,8)],use="everything",method="pearson"))
 (CovMatrix<-cov(Tmp[,c(5,7,8)],use="complete.obs",method="pearson"))
-rm(Tmp)
 ```
 
 用R自带的数据
@@ -212,7 +211,7 @@ coplot(RH~temp|wind,number=6,pch=1,data=Forest,xlab="温度",ylab="相对湿度"
 coplot(RH~temp|as.factor(X)*as.factor(Y),pch=1,data=Forest,xlab="温度",ylab="相对湿度")
 ```
 
-<<<<<<< HEAD
+
 
 
 ---
@@ -350,12 +349,3 @@ mosaic(~sex+avScore,data=ReportCard,shade=TRUE,legend=TRUE)
 ```
 
 
-
-
-
-
-
-
-
-=======
->>>>>>> 27faeebcedbf849ae23f08c64333d1c5786b2e29

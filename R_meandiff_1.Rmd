@@ -12,6 +12,11 @@ output:
 ReportCard<-read.table(file="ReportCard.txt",header=TRUE,sep=" ")
 ```
 
+```{r}
+library(sm)
+```
+
+
 
 ---
 
@@ -56,6 +61,8 @@ Sp<-((100-1)*S1^2+(120-1)*S2^2)/(100+120-2)
 points((2-10),sqrt(Sp/100+Sp/120),pch=2,col=2)
 ```
 
+红色圆圈为估计值，黑色三角为理论值，二者重合。
+
 ---
 
 * 若总体方差$\sigma_1^2$和$\sigma_2^2$未知且不相等时，则$\sigma^2_{x_1-x_2}$的理论估计为：
@@ -85,7 +92,7 @@ S2<-mean(Sdx2)
 points((2-10),sqrt(S1^2/100+S2^2/120),pch=2,col=2)
 
 ```
-
+红色圆圈为估计值，黑色三角为理论值，二者重合。
 
 方差不等时，Welch提出仍采用$\frac{\bar{x}_1-\bar{x}_2}{\sigma_{x_1-x_2}}$作为统计量，但并不服从自由度为$n_1+n_2-2$的t分布，而是服从自由度为：
 
@@ -109,6 +116,10 @@ Tmp<-subset(Forest,Forest$month=="jan" | Forest$month=="aug")
 t.test(temp~month,data=Tmp,paired=FALSE,var.equal=TRUE)
 t.test(temp~month,data=Tmp,paired=FALSE,var.equal=FALSE)
 ```
+
+
+对气温数据的分析显示，一月份和八月份森林的气温有显著差异，t(df=`r AA$parameter`)=`r AA$statistic`，一月份的均值是`r AA$estimate[1]`(SD=)，八月份的气温均值是
+
 
 
 应采用以上哪个结果应禁言是否方差齐性，采用levene's方差同质检验。levene's是对离差的绝对值的均值差异进行判断，如果有显著差异即方差不齐，否则方差齐性。

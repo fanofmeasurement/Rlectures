@@ -1,0 +1,232 @@
+---
+title: "R的回归分析之一"
+author: "李峰"
+date: '`r strftime(Sys.time(), format = "%B %d, %Y")`'
+output:
+  html_document: default
+---
+
+
+
+
+---
+
+
+####  1. 线性回归方程的建立
+
+```{r}
+CarData<-read.table(file="CarData.txt",header=TRUE)
+CarData$ModelYear<-as.factor(CarData$ModelYear)
+pairs(~MPG+weight+displacement+horsepower,data=CarData)
+```
+
+
+```{r}
+Fit<-lm(MPG~weight+displacement+horsepower,data=CarData)
+```
+
+
+```{r}
+coefficients(Fit)
+```
+
+
+####  2. 显著性检验和调整
+
+```{r}
+summary(Fit)
+confint(Fit)
+```
+
+
+
+```{r}
+Fit<-lm(MPG~weight+horsepower,data=CarData)
+summary(Fit)
+```
+
+####  3. 预测值
+
+```{r}
+FitMPG<-predict(Fit,CarData,type="response")
+plot(CarData$weight,CarData$MPG,pch=1,xlab="自重",ylab="MPG")
+points(CarData$weight,FitMPG,pch=10,col=2)
+legend("topright",c("实际值","拟合值"),pch=c(1,10),col=c(1,2))
+```
+
+
+
+####  4. 残差是否正态？
+
+```{r}
+fitted(Fit)
+residuals(Fit)
+```
+
+```{r}
+par(mfrow=c(2,2))
+plot(Fit)
+```
+
+因变量做BOX-COX变换，BOX-COX变换是指$y^{\lambda}$，常见的是对数转换。
+
+```{r}
+Fit<-lm(log(MPG)~weight+horsepower,data=CarData)
+summary(Fit)
+par(mfrow=c(2,2))
+plot(Fit)
+```
+
+
+也可以用*car*包中的**powerTransform**函数，估计$\lambda$的值。
+
+```{r}
+library("car")
+summary(powerTransform(CarData$MPG))
+```
+
+$\lambda$的值可取0.5，即开根号。
+
+```{r}
+Fit<-lm(sqrt(MPG)~weight+horsepower,data=CarData)
+summary(Fit)
+par(mfrow=c(2,2))
+plot(Fit)
+```
+
+
+####  4. 残差是否齐方差？
+
+可以观察图形，也可以用*car*包中的**spreadLevelPlot**函数，**spreadLevelPlot**函数会给出$\lambda$的建议值。
+
+```{r}
+Fit<-lm(sqrt(MPG)~weight+horsepower,data=CarData)
+spreadLevelPlot(Fit) 
+```
+
+
+####  5. 残差是否独立？
+
+DW检验在截面数据中意义不大。
+
+```{r}
+library("car")
+durbinWatsonTest(Fit)    ##独立性检验
+```
+
+
+
+
+####  6. 高杠杆值的探测
+
+杠杆值是针对X而言的，指其取值对y的影响较大，使用函数**hatvalues**。
+
+```{r}
+LeveragePlot<-function(fit){
+ Np<-length(coefficients(fit))-1
+ N<-length(fitted(fit))
+ plot(hatvalues(fit),main="观测点的杠杆值序列图",ylab="杠杆值",xlab="观测编号")
+ abline(2*(Np+1)/N,0,col="red",lty=2)
+ abline(3*(Np+1)/N,0,col="red",lty=2)
+ identify(1:N,hatvalues(fit),names(hatvalues(fit)))
+}
+Fit<-lm(sqrt(MPG)~weight+horsepower,data=CarData)
+LeveragePlot(Fit)
+```
+
+
+
+
+
+####  7. 离群点的探测
+
+
+离群点是针对y而言的。可以用图形的方法观察，也可以用学生化残差的值做判断，用*car*包中的**outlierTest**函数。
+
+```{r}
+Fit<-lm(log(MPG)~weight+horsepower,data=CarData)
+rstudent(Fit)
+```
+
+
+```{r}
+par(mfrow=c(2,2))
+plot(Fit)
+```
+
+
+
+```{r}
+library("car")
+outlierTest(Fit)
+```
+
+第388个case可能是离群点，删除掉后在进行检验：
+
+```{r}
+Fit<-lm(log(MPG)~weight+horsepower,data=CarData[-388,])
+outlierTest(Fit)
+```
+
+又发现第112个case可能是离群点。
+
+
+
+
+####  7. 强影响点的探测
+
+
+R中获取库克距离的函数是**cooks.distance**，若大于$\frac{4}{n-k-1}$就认为是influence points，一般认为大于1就算。
+
+```{r}
+Fit<-lm(log(MPG)~weight+horsepower,data=CarData)
+plot(cooks.distance(Fit),main="Cook's distance",cex=0.5) 
+```
+
+
+```{r}
+Np<-length(coefficients(Fit))-1
+N<-length(fitted(Fit))
+CutLevel<-4/(N-Np-1)
+plot(Fit,which=4)
+abline(CutLevel,0,lty=2,col="red")
+```
+
+
+
+
+
+```{r}
+Fit0<-lm(log(MPG)~weight+horsepower,data=CarData[-117,])
+plot(cooks.distance(Fit0),main="Cook's distance",cex=0.5) 
+```
+
+
+
+
+用*car*包中的**influencePlot**函数可对异常值的情况进行综合判断。
+
+
+
+```{r}
+Fit<-lm(log(MPG)~weight+horsepower,data=CarData)
+influencePlot(Fit,id.method="identify",main="异常观测点的可视化")
+```
+
+
+####  8. 多重共线性
+
+VIF的值大于10意味着有严重的多重共线性。
+
+```{r}
+Fit<-lm(log(MPG)~weight+horsepower,data=CarData)
+library("car")
+vif(Fit)
+```
+
+
+
+
+
+
+

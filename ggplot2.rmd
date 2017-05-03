@@ -1,0 +1,256 @@
+---
+title: "ggplot2"
+author: "w"
+date: "2017年5月7日"
+output: word_document
+---
+
+#基础绘图
+
+##直方图与密度曲线
+核密度估计是用于估计随机变量概率密度的一种非参数方法
+
+```{r}
+library(ggplot2)
+a<-ggplot(data=diamonds,aes(x=carat))+geom_histogram()
+a
+b<-ggplot(data=diamonds)+geom_density(aes(x=carat))
+b
+```
+
+
+
+##散点图
+
+
+```{r}
+ggplot(diamonds,aes(x=carat,y=price))+geom_point()
+
+ggplot(diamonds,aes(x=carat,y=price))+geom_point(alpha=0.3)
+
+ggplot(diamonds,aes(x=carat,y=price))+geom_point(alpha=0.3)+geom_smooth()
+```
+
+
+
+
+
+##箱线图
+
+```{r}
+
+
+ggplot(diamonds,aes(y=carat,x=cut,fill=cut))+geom_boxplot()
+
+```
+
+
+##曲线图
+
+
+```{r}
+
+economics
+
+ggplot(economics,aes(x=date,y=unemploy/pop))+geom_line()
+
+```
+
+##条形图
+
+```{r}
+
+x<-ggplot(diamonds,aes(clarity,fill=cut))
+
+#堆积条形图(将不同切割状态的数据堆积放置)
+
+x1<-x+geom_bar(position="stack")
+
+
+#簇状条形图（将不同切割状态的数据并列放置）
+
+x2<-x+geom_bar(position="dodge")
+
+x1
+
+x2
+
+```
+
+
+##饼图
+
+```{r}
+ggplot(diamonds)+geom_bar(aes(x=1, fill=cut))+coord_polar(theta='y')
+ggplot(diamonds)+geom_bar(aes(x=clarity, fill=cut))+coord_polar()
+```
+
+##折线图
+
+
+```{r}
+year <- rep(1990:2015, times = 2)
+type <- rep(c('A','B'),each = 26)
+value <- c(runif(26),runif(26, min = 1,max = 1.5))
+df <- data.frame(year = year, type = type, value = value)
+ggplot(df, aes(x = year, y = value, linetype = type, colour = type, shape = type, fill = type))+ geom_line() + geom_point()
+```
+
+#图形进阶
+
+##直方图与密度曲线
+
+```{r}
+library(ggplot2)
+library(devtools)
+library(easyGgplot2)
+library(grid)
+
+p <- ggplot(mpg,aes(hwy))
+p1<-p + geom_histogram(position = 'identity',alpha=0.5,aes(y = ..density..,fill =factor(year))) +stat_density(geom = 'line',aes(colour = factor(year)))
+
+pdf("compare_identity.pdf")
+
+grid.newpage()
+
+p2<-p + geom_histogram(alpha=0.5,aes(y = ..density..,fill =factor(year))) +stat_density(geom = 'line',aes(colour = factor(year)))
+
+pushViewport(viewport(layout=grid.layout(2,1)))
+
+vplayout<-function(x,y)
+  viewport(layout.pos.row=x,layout.pos.col=y)
+
+print(p1,vp=vplayout(1,1))
+print(p2,vp=vplayout(2,1))
+dev.off()
+
+p1
+
+p2<-p1+facet_wrap(~factor(year))
+
+p2
+ggplot2.multiplot(p1,p2,cols=1)
+
+```
+
+##密度曲线
+
+```{r}
+data(Salaries,package="car")
+head(Salaries,10)
+ggplot(Salaries,aes(x=salary,fill=rank))+geom_density(alpha=1/2)
+```
+
+
+##曲线
+
+
+
+
+
+```{r}
+library(lubridate)
+
+economics$year<-year(economics$date)
+
+economics$month<-month(economics$date,label=TRUE)
+
+econ2000<-economics[which(economics$year>=2010),]
+
+g<-ggplot(econ2000,aes(x=month,y=pop))
+
+g<-g+geom_line(aes(color=factor(year),group=year))
+
+
+g
+
+```
+
+##多边形的绘制
+
+```{r}
+randnorm<-rnorm(30000)
+randdensity<-dnorm(randnorm)
+p<-ggplot(data.frame(x=randnorm,y=randdensity))+aes(x=x,y=y)+geom_point()+labs(x="Randnorm Normal Variables",y="Density")
+negpos1seq<-seq(from=-1,to=1,by=0.1)
+negto1<-data.frame(x=negpos1seq,y=dnorm(negpos1seq))
+
+negto1<-rbind(c(min(negto1),0),negto1,c(max(negto1$x),0))
+head(negto1)
+p+geom_polygon(data=negto1,aes(x=x,y=y))
+```
+
+##散点图
+
+```{r}
+p <- ggplot(data=mpg,aes(x=displ,y=hwy,colour=factor(cyl)))
+
+p1<-p + geom_point() 
+p1
+p1+facet_grid(.~year)  #列项展示
+p1+facet_grid(year~.)   #行项展示
+p1+ geom_smooth()
+
+g<- ggplot(mpg,aes(x=displ,y=hwy))
+g+ geom_point(aes(colour=factor(cyl))) + geom_smooth()
+```
+
+
+##气泡散点图
+
+```{r}
+bmp(filename="output.bmp")
+p <- ggplot(mpg, aes(x=cty,y=hwy))
+p + geom_point(aes(colour=factor(year),size=displ),alpha=0.5,position = "jitter")+ stat_smooth()+scale_color_manual(values =c('blue2','red4'))+
+scale_size_continuous(range = c(4, 10))+coord_cartesian(xlim = c(15, 25),ylim=c(15,40))
+dev.off()
+```
+
+
+
+
+##主题
+
+```{r}
+library(grid)
+require(ggthemes)
+
+g<-ggplot(diamonds,aes(x=carat,y=price))+geom_point(aes(color=color))
+g
+
+g1<-g+theme_economist()+scale_colour_economist()
+
+g2<-g+theme_excel()+scale_colour_excel()
+
+g3<-g+theme_wsj()
+
+g1
+g2
+g3
+
+
+
+```
+
+
+
+```{r}
+data(tips,package="reshape2")
+head(tips)
+GGally::ggpairs(tips)
+ggsave("graph.pdf", width=10, height=10,limitsize = FALSE)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+

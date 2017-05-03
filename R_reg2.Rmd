@@ -1,0 +1,159 @@
+---
+title: "R的回归分析之二"
+author: "李峰"
+date: '`r strftime(Sys.time(), format = "%B %d, %Y")`'
+output:
+  html_document: default
+---
+
+
+
+
+---
+
+
+####  1. 回归建模策略
+
+```{r}
+CarData<-read.table(file="CarData.txt",header=TRUE)
+```
+
+$R^2$和$Adjusted$ $R^2$的公式
+
+
+\begin{equation}\label{eq:1}
+  R^2=\frac{SSR}{SST},
+\end{equation}
+
+\begin{equation}\label{eq:2}
+  {\bar{R}}^2=\frac{SSR/p}{SST/(n-1)},
+\end{equation}
+
+```{r}
+Fit1<-lm(log(MPG)~weight+horsepower,data=CarData)
+Fit2<-lm(log(MPG)~weight+horsepower+displacement,data=CarData)
+summary(Fit1)
+summary(Fit2)
+anova(Fit1,Fit2)
+```
+
+
+
+####  2. AIC和BIC信息准则
+
+对回归分析而言，
+\begin{equation}\label{eq:3}
+  AIC=n+nln(2\pi)+nln(RSS/n)+2(p+1),
+\end{equation}
+
+
+\begin{equation}\label{eq:4}
+  BIC=n+nln(2\pi)+nln(RSS/n)+ln(n)(p+1),
+\end{equation}
+
+p是参数个数。
+
+
+```{r}
+Fit1<-lm(log(MPG)~weight+horsepower,data=CarData)
+Fit2<-lm(log(MPG)~weight+horsepower+displacement,data=CarData)
+AIC(Fit1,Fit2)
+```
+
+```{r}
+(392+392*log(2*pi)+392*log(9.587/392)+2*4)
+```
+
+
+```{r}
+BIC(Fit1,Fit2)
+```
+
+
+
+####  3. 变量筛选策略
+
+
+
+```{r}
+Fit<-lm(log(MPG)~weight+horsepower+displacement+cylinders+acceleration,data=CarData)
+library("MASS")
+stepAIC(Fit,direction="backward")
+```
+
+```{r}
+stepAIC(Fit,direction="both")
+```
+
+
+
+
+####  4. 全子集回归
+
+```{r}
+library("leaps")
+leapsFit<-regsubsets(log(MPG)~weight+horsepower+displacement+cylinders+acceleration,data=CarData,nbest=2)
+summary(leapsFit)
+coef(leapsFit, c(3,5))
+```
+
+
+
+```{r}
+plot(leapsFit,scale="bic")
+```
+
+
+```{r}
+plot(leapsFit,scale="adjr2")
+```
+
+```{r}
+library("car")
+subsets(leapsFit,statistic="cp",main="全子集回归模型评价图",legend=TRUE)
+abline(1,1,lty=2,col="red")
+```
+
+
+
+####  5. 虚拟变量的回归分析
+
+```{r}
+CarData$ModelYear<-as.factor(CarData$ModelYear)
+Fit<-lm(log(MPG)~ModelYear,data=CarData)
+summary(Fit)
+```
+
+```{r}
+(table(CarData$ModelYear))
+```
+
+
+```{r}
+tmp<-subset(CarData,CarData$ModelYear=="70"|CarData$ModelYear=="71")
+tresult<-t.test(log(MPG)~ModelYear,data=tmp,paired=FALSE,var.equal=TRUE)
+```
+
+
+```{r}
+(tresult$estimate[1]-tresult$estimate[2])
+```
+
+
+
+```{r}
+Fit<-lm(log(MPG)~weight+horsepower+ModelYear,data=CarData)
+summary(Fit)
+```
+
+
+
+
+
+
+
+
+
+
+
+

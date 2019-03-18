@@ -1,21 +1,22 @@
 ---
 title: "R的数据组织之一"
 author: "李峰"
-date: "2017年2月28日"
+date: "2019年3月18日"
 output:
-  html_document: default
+  html_document: 
+    number_sections: yes
+    theme: lumen
+    toc: yes
+    toc_depth: 5
 ---
 
 
 ---
 
-# 1. R的帮助、包和运行
+# R的帮助、包和运行
 
 ## R的帮助
 
-```{r}
-help.start
-```
 
 ```{r}
 help("Foreign")
@@ -23,7 +24,6 @@ help("Foreign")
 
 ## R包的使用
 
-***先加载，后浏览，再调用***
 
 先加载
 ```{r}
@@ -41,13 +41,13 @@ library(help="knitr")
 
 如果不再用的包，可以卸载掉。
 
-~~~
+
 ```{r}
 detach("package:knitr")
 ```
-~~~
 
-##工作目录
+
+## 工作目录
 
 获取工作目录
 
@@ -55,264 +55,552 @@ detach("package:knitr")
 getwd()
 ```
 
-<<<<<<< HEAD
+
 修改工作目录
-# ```{r}
-# setwd("C:\\Users\\leefe_000\\SkyDrive\\LECTURES\\R\\week2")
-# ```
-=======
-<!-- 修改工作目录 -->
-<!-- ```{r} -->
-<!-- setwd("C:\\Users\\leefe_000\\SkyDrive\\LECTURES\\R\\week2") -->
-<!-- ``` -->
->>>>>>> 07c3bba8ddbcec50ba0cf9352469ffe29ed3ba59
-
-
----
-
-
-
-## R的数据对象
-
-### 向量
-
-创建标量
 
 ```{r}
-V1<-59         #创建整数形式的数值型向量，存储类型默认为双精度型
-V1             #显示对象值
-V2<-53.5       #创建实数形式的数值型向量，存储类型为双精度型
-V2
-V3<-"abcD"     #创建逻辑型向量，并直接显示对象值
-print(V3)      #显示对象值
-(V4<-TRUE)     #创建逻辑型向量，并直接显示对象值
-is.vector(V1)
-is.logical(V4)
-```
-
-
-创建向量
-
-```{r}
-x<-c(4,7,6,3,4)
-y<-c("4","7","6","3","4")
-z<-c('zifu',3,4,5)
-mode(z)
-z
-```
-*如果向量的所有元素类型不是同一种数据类型，R将强制执行类型转换*
-
-```{r}
-a<-c(1,2,3)
-print(a)
-a<-a*4
-print(a)
-```
-
-
-`sink`可将程序运行结果保存到一个制定的文本文件里，如果后续输出结果不再需要，在相应行写`sink()`
-```{r}
-sink("MyOutput.txt",append=FALSE,split=FALSE)
-a<-c(1,2,3)
-print(a)
-a<-a*4
-print(a)
-sink()
-```
-
-```{r}
-X<-c(1,1,1)
-length(X)
-Y<-c(2,2,2)
-temp<-c(14.7,18.5,25.9)
-RH<-c(66,73,41)
-wind<-c(2.7,8.5,3.6)
-rain<-c(0,0,0)
-area<-rain
-month<-c("aug","aug","aug")
-day<-rep("fri",each=3)
-rank<-seq(from=1,to=3,by=1)
-str(month)
-str(rank)
-ls()
-```
-
-
-访问向量中的元素
-```{r}
-a <- c(1, 2, 5, 3, 6, -2, 4)
-a[3]
-a[c(1, 3, 5)]
-a[2:6]
+# setwd("")
 ```
 
 
 
-管理对象
+
+
+
+
+
+# R的数据对象
+
+
+|  | 同质 | 异质 |
+| :------: | :------: | :------: |
+| 1维 | 原子向量 | 列表 |
+| 2维 | 矩阵 | 数据框 |
+| n维 | 数组 |  |
+
+
+
+## 向量
+
+
+### 原子向量
+
+四种常见的原子向量：
+
++ 逻辑型(logical)
++ 整型(integer)
++ 双精度型(double | numeric)
++ 字符型(character)
+
+
+#### 通常使用**c()**来构建原子向量
+
+**c**是**combine**的缩写。
 
 ```{r}
-ls()
-rm(a,b,V1,V2,V3,V4)
+dbl_var <- c(1, 2.5, 4.5)
+# With the L suffix, you get an integer rather than a double
+int_var <- c(1L, 6L, 10L)
+# Use TRUE and FALSE (or T and F) to create logical vectors
+log_var <- c(TRUE, FALSE, T, F)
+chr_var <- c("these are", "some strings")
+```
+
+#### 即使嵌套，原子向量也是被展开的
+
+
+```{r}
+c(1, c(2, c(3, 4)))
+```
+
+```{r}
+c(1, 2, 3, 4)
+```
+
+#### 向量的类型
+
+使用typeof()或者is类函数：
+
++ is.logical()
++ is.integer()
++ is.double()
++ is.character()
+  
+
+```{r}
+int_var <- c(1L, 6L, 10L)
+typeof(int_var)
 ```
 
 
-### 矩阵
-
-创建矩阵
+```{r}
+is.integer(int_var)
+```
 
 ```{r}
-y <- matrix(1:20, nrow = 5, ncol = 4)
-y
-cells <- c(1, 26, 24, 68)
-rnames <- c("R1", "R2")
-cnames <- c("C1", "C2")
-mymatrix <- matrix(cells, nrow = 2, ncol = 2, byrow = TRUE, 
-    dimnames = list(rnames, cnames))
-mymatrix
-mymatrix <- matrix(cells, nrow = 2, ncol = 2, byrow = FALSE, 
-    dimnames = list(rnames, cnames))
-mymatrix
+is.atomic(int_var)
 ```
 
 
 
-访问矩阵中的元素
+```{r}
+dbl_var <- c(1, 2.5, 4.5)
+typeof(dbl_var)
+```
+
 
 ```{r}
-x <- matrix(1:10, nrow = 2)
+is.double(dbl_var)
+```
+
+
+```{r}
+is.atomic(dbl_var)
+```
+
+
+**is.numeric()不是专门用于判断double类型的**
+
+```{r}
+is.numeric(int_var)
+```
+
+
+```{r}
+is.numeric(dbl_var)
+```
+
+
+#### 强制转换
+
+原子向量要求所有的元素必须是同一个类型，如果不同类型的数据结合为一个向量，会被强制转换(coerce)为最灵活的数据类型。
+
+
+灵活性排序：
+
+**character > double > integer > logical**
+
+
+```{r}
+str(c("a", 1))
+```
+
+数学函数一般会把数据coerce为double或interger，逻辑元素符会把数据转换为logical的。
+
+
+但是，coerce有时会带来数据丢失，这时应进行显式强制转换：
+
++ as.character()
++ as.double()
++ as.integer()
++ as.logical()
+
+```{r}
+x <- c(FALSE, FALSE, TRUE)
+as.numeric(x)
+```
+
+```{r}
+sum(x)
+mean(x)
+```
+
+
+### 列表
+
+
+
+#### 列表是使用**list()**创建的。
+
+```{r}
+x <- list(1:3, "a", c(TRUE, FALSE, TRUE), c(2.3, 5.9))
+str(x)
+```
+
+#### 向量都是被展开的，而一个列表可以包含其他列表，所以列表也被称为递归(recursive)向量。
+
+```{r}
+x <- list(list(list(list())))
+str(x)
+```
+
+```{r}
+is.recursive(x)
+```
+
+
+#### 如果原子向量和列表结合一起，c()会强制将向量转换为列表，再结合一起。
+
+
+```{r}
+x <- list(list(1, 2), c(3, 4))
+y <- c(list(1, 2), c(3, 4))
+```
+
+
+```{r}
+str(x)
+str(y)
+```
+
+
+#### 类型及转换
+
++ typeof()
++ is.list()
++ as.list()
++ unlist()
+
+
+#### R中常用list构建复杂的数据结构
+
+
+```{r}
+mtcars
+```
+
+
+
+```{r}
+is.list(mtcars)
+```
+
+```{r}
+mod <- lm(mpg ~ wt, data = mtcars)
+summary(mod)
+```
+
+```{r}
+str(mod)
+```
+
+```{r}
+is.list(mod)
+```
+
+
+
+
+
+
+### 属性(attribution)
+
+
+#### 属性是一种从外部附加到对象上的，可被视为某种"标签"。
+
+```{r}
+y <- 1:10
+attr(y, "my_attribute") <- "This is a vector"
+attr(y, "my_attribute")
+```
+
+
+```{r}
+str(attributes(y))
+```
+
+
+
+```{r}
+structure(1:10, my_attribute = "This is a vector")
+```
+
+#### 对象的属性不继续存在于对象的元素或运算结果上
+
+```{r}
+attributes(y[1])
+```
+
+
+```{r}
+attributes(sum(y))
+```
+
+#### 三种重要的属性
+
++ name: names(x)
++ dimension: dim(x)
++ class: class(x)
+
+
+
+### name
+
+#### 直接命名
+```{r}
+x <- c(a = 1, b = 2, c = 3)
+names(x)
+```
+
+
+#### 修改
+```{r}
+x <- 1:3
+names(x) <- c("a", "b", "c")
+names(x)
+```
+
+#### 复制向量并改名
+
+```{r}
+x <- setNames(1:3, c("a", "b", "c"))
+names(x)
+```
+
+
+#### 并不是每个元素都有名字，即使有名字也可以去掉
+
+
+```{r}
+names(x)<-NULL
+names(x)
+```
+
+
+### 因子(factor)
+
+属性的一个重要应用是定义因子，因子是只能包含预先定义值的向量，常用于存储分类数据，如：
+
++ 大学的年级
++ 性别
++ 民族
++ 学历
++ ......
+
+
+
+
+```{r}
+x <- factor(c("a", "b", "b", "a"))
+```
+
+
+#### 因子是建立在integer vector之上的，有两个属性：class()和level()。
+
++ class()把factor和integer区分开来，可以把factor理解为整型向量里的每个元素加上了name，并且用name表示integer。
++ levels()则定义因子所有可能的取值
+
+```{r}
+x <- factor(c("a", "b", "b", "a"))
 x
-x[2, ]
-x[, 2]
-x[1, 4]
-x[1, c(4, 5)]
-```
-
-
-
-```{r}
-ForeData<-cbind(X,Y,temp,RH,wind,rain,area,rank)
-dim(ForeData)
-ForeData
-str(ForeData)
-colnames(ForeData)
-colnames(ForeData[,3:5])
-rownames(ForeData)<-c("1","2","3")
-rownames(ForeData[c(1,3),])
-is.matrix(ForeData)
-
-
-a<-(1:30)
-dim1<-c("R1","R2","R3","R4","R5")
-dim2<-c("C1","C2","C3","C4","C5","C6")
-a<-matrix(a,nrow=5,ncol=6,byrow=FALSE,dimnames=list(dim1,dim2))
-a
-rm(a,dim1,dim2)
-```
-
-
-```{r}
-ForeData
-ForeData[2,3]
-ForeData[1:2,1:3]
-a<-(1:2)
-ForeData[a,c(1,3)]
-ForeData[2,]
-ForeData[c(1,3),]
-a<-c(TRUE,FALSE,TRUE)
-ForeData[a,]
-ForeData[,1:3]
-rm(a)
-
-fix(ForeData)
-```
-
-
-
-### 数组
-
-创建数组
-
-```{r}
-dim1 <- c("A1", "A2")
-dim2 <- c("B1", "B2", "B3")
-dim3 <- c("C1", "C2", "C3", "C4")
-z <- array(1:24, c(2, 3, 4), dimnames = list(dim1, 
-    dim2, dim3))
+y <- as.integer(x)
+y
+z <- as.character(x)
 z
-rm(a,dim1,dim2,dim3)
-```
-
-
-
-
-### 数据框
-
-创建数据框
-
-```{r}
-patientID <- c(1, 2, 3, 4)
-age <- c(25, 34, 28, 52)
-diabetes <- c("Type1", "Type2", "Type1", "Type1")
-status <- c("Poor", "Improved", "Excellent", "Poor")
-patientdata <- data.frame(patientID, age, diabetes, 
-    status)
-patientdata
-```
-
-指定数据框中的元素
-```{r}
-patientdata[1:2]
-patientdata[c("diabetes", "status")]
-patientdata$age
 ```
 
 
 ```{r}
-ForeDataFrm<-data.frame(FX=X,FY=Y,Fmonth=month,Fday=day,Ftemp=temp,FRH=RH,Fwind=wind,Frain=rain,Farea=area)
-ForeDataFrm
-names(ForeDataFrm)
-str(ForeDataFrm)
-is.data.frame(ForeDataFrm)
+levels(x)
+```
+
+```{r}
+sex_char <- c("m", "m", "m")
+sex_factor <- factor(sex_char, levels = c("m", "f"))
+
+table(sex_char)
 ```
 
 
-**数据框的不同列可以包含不同模式（数值型、字符型）数据；矩阵和数组中的数据都只能拥有一种模式。矩阵为2维数组；数组的维数可以大于2**
 
 
-
-
-## 列表
+#### 不能增加factor里没有的level
 
 
 ```{r}
-g <- "My First List"
-h <- c(25, 26, 18, 39)
-j <- matrix(1:10, nrow = 5)
-k <- c("one", "two", "three")
-mylist <- list(title = g, ages = h, j, k)
-mylist
+x[2] <- "c"
+```
+
+#### factor不能合并
+
+```{r}
+c(factor("a"), factor("b"))
+```
+
+
+
+#### 读取数据时，factor可能给你带来困扰
+
+
+有时候，一列数值变量可能被读取为factor的，可能时因为其中有字符。需要先将factor转成字符，然后再转成双精度。
+
+
+```{r}
+x <- factor(c("1982", "1988", "1990", "1994"))
+x
+y <- as.integer(x)
+y
+z <- as.character(x)
+z
+a <- as.integer(as.character(x))
+a
+```
+
+
+### 练习
+
+以下运行的结果是什么？
+
++ c(1,FALSE) 
++ C("a",1)
++ c(list(1),"a")
++ c(TRUE, 1L)
++ 1 == "1"
++ -1 < FALSE
++ "one" < 2
+
+
+
+## 矩阵和数组
+
+给一个原子向量添加dim()后，它就像多维数组了，其中特例就是矩阵，矩阵是二维的。
+
+```{r}
+a <- matrix(1:6, ncol = 3, nrow = 2)
+b <- array(1:12, c(2, 3, 2))
+c <- 1:6
+dim(c) <- c(3, 2)
 ```
 
 
 ```{r}
-a<-c(1,2,3)
-b<-matrix(nrow=5,ncol=2)
-b[,1]=seq(from=1,to=10,by=2)
-b[,2]=seq(from=10,to=1,by=-2)
-c<-array(1:60,c(4,5,3))
-d<-list(L1=a,L2=b,L3=c) 
-names(d)  
-str(d)
-is.list(d) 
-d$L1 
-d[["L2"]]
-d[[2]]
-rm(a,b,c,d)
+a
+b
+c
+```
+
+```{r}
+dim(c) <- c(2, 3)
+c
+```
+
+
+
+### 矩阵和数组的dim()
+
+```{r}
+length(a)
+nrow(a)
+ncol(a)
+```
+
+
+```{r}
+length(b)
+dim(b)
+```
+
+
+### 矩阵和数组的names()
+
+
+```{r}
+rownames(a) <- c("A", "B")
+colnames(a) <- c("a", "b", "c")
+a
+```
+
+
+```{r}
+dimnames(b) <- list(c("one", "two"), c("a", "b", "c"), c("A", "B"))
+b
+```
+
+### 常用操作
+
+
++ cbind()
++ rbind()
++ t()
++ is.matrix()
++ is.array()
++ as.matrix()
++ as.array()
+
+
+## 数据框
+
+
+数据框是由相同长度的向量构成的列表。
+
+
+### 数据框构建
+
+
+```{r}
+df <- data.frame(x = 1:3, y = c("a", "b", "c"))
+str(df)
+```
+
+**数据框默认把character转成factor**
+
+
+```{r}
+df <- data.frame(
+  x = 1:3,
+  y = c("a", "b", "c"),
+  stringsAsFactors = FALSE)
+str(df)
 ```
 
 
 
 
+### type and coerce
 
-**list是个筐，什么都可以往里装，包括它自身。数据框是个二维数组，同列必须同类型，行随意**
+
+```{r}
+typeof(df)
+```
+
+```{r}
+class(df)
+is.data.frame(df)
+```
+
+
+
+
+### combining data frames
+
++ cbind: number of rows must be same
++ rbind: number and names of rows must be same 
+
+```{r}
+cbind(df, data.frame(z = 3:1))
+```
+
+
+```{r}
+rbind(df, data.frame(x = 10, y = "z"))
+```
+
+
+** cbind() can not create a dataframe** 
+
+```{r}
+bad <- cbind(a = 1:2, b = c("a", "b"))
+class(bad)
+```
+
+
+
+```{r}
+good <- data.frame(cbind(a = 1:2, b = c("a", "b")))
+class(good)
+str(good)
+```
+
+
+
+
+### 练习
+
++ as.matrix()如果应用到一个列类型不同的数据框上会怎么样？
++ 有没有行数为0的数据框？有没有列数为0的数据框？
+
+
+
+
+
 

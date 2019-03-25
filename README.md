@@ -3,4 +3,5 @@
 ### 1 R语言入门  
 
 #### [1.1 R的数据对象](https://github.com/cacolola/Rlectures/blob/master/R_datastru_1.Rmd)
+#### [1.2 子集选取](https://github.com/cacolola/Rlectures/blob/master/R_datastru_2.Rmd)
 

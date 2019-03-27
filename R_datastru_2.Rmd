@@ -1,224 +1,683 @@
 ---
 title: "R的数据组织之二"
 author: "李峰"
-date: "2017年3月8日"
+date: "2018年3月25日"
 output:
-  html_document: default
+  html_document: 
+    number_sections: yes
+    theme: lumen
+    toc: yes
+    toc_depth: 5
 ---
 
 
 ---
 
-## 1. 数据对象类型判断和转换
 
-### 存储类型
+# 基于“[”来选取子集
 
-#### 数据对象存储类型判断，可以用**is.类型名（对象名）**的方式进行判断，也可以直接用**typeof(对象名)**的方式进行。
+
+
+## 原子向量
 
 ```{r}
-a<-123.4
-is.numeric(a)
-is.integer(a)
-is.double(a)
-is.character(a)
-is.logical(a)
-b<-"123.4"
-typeof(b)
-c<-TRUE
-typeof(c)
-rm(a,b,c)
+x <- c(2.1, 4.2, 3.3, 5.4)
 ```
 
----
+
+有五种方法选取向量的子集：
+
++ 正整数返回指定位置元素: x[c(3, 1)]
++ 负整数返不包含指定位置元素：x[-c(3, 1)]
++ 逻辑向量只选择逻辑向量的相应位置上为TRUE的元素：x[c(TRUE, TRUE, FALSE, FALSE)]
++ 空索引返回原始向量：x[]
++ 字符向量返回索引中的名字相匹配的元素：y[c("d", "c", "a")]
 
 
-#### 存储类型的转换
+### 正整数
 
 ```{r}
-a<-123.4
-(a<-as.integer(a))   # 赋值语句外面加括号可以直接print其值
-typeof(a)
-a<-123.4
-(a<-as.character(a))
-typeof(a)
-a<-"abcd"
-(a<-as.double(a))    #555555，臣妾做不到啊
-a<-TRUE
-(a<-as.integer(a))   # 逻辑型转换为整数型后，值为1或0
-typeof(a)            # 相应的，只有1或0的数值型对象才能转换为逻辑型
-a<-TRUE
-(a<-as.character(a))
-typeof(a)
-rm(a)
+x[c(3, 1)]
+x[order(x)]
 ```
 
 
+> 如果是x[c(1, 1)]，会得到什么？
 
----
-
->  BTW，如何让代码在knitr编译过的文本里隐身，看着辣眼睛
-
-
-```{r,echo=0}
-a<-1
-```
+> 如果是x[c(2.1, 2.9)]，会得到什么？
 
 
-
----
-
-#### 结构类型间的转换
-
-#####　A. 向量和矩阵间的转换
+### 负整数
 
 ```{r}
-(a<-c(1:10))
-(b<-matrix(a,nrow=5,ncol=2,byrow=TRUE)) # 指定矩阵的行列个数，以及从哪开始排
-(a<-as.matrix(a))
-is.matrix(a)
-(b<-as.vector(b))                      # 转向量，默认以列为单位从左向右排
-is.vector(b)
-rm(a,b)
+x[-c(3, 1)]
 ```
 
-
----
-
-##### B. 向量转因子
-
-因子是特殊类型的向量，从概念上和SPSS的variable view里measurement里的nominal和ordinal类似，也包括两种，一种是nominal的，一种是ordinal的。
-其存储类型是integer的。
-向量转因子的核心是如何将向量里的k个类别和因子的k个水平对应。
-
----
-
-##### nominal类型
-```{r}
-(a<-c("Poor","Improved","Excellent","Poor")) 
-is.vector(a)
-(b<-as.factor(a))
-is.factor(b)
-levels(b)   # 按字母升序显示因子水平值对应的类别值
-typeof(b)
-```
-
----
-
-##### ordinal类型
-
-```{r}
-(a<-c("Poor","Improved","Excellent","Poor")) 
-(b<-factor(a,order=FALSE,levels=c("Poor","Improved","Excellent")))  
-(b<-factor(a,order=TRUE,levels=c("Poor","Improved","Excellent")))
-```
+> 能不能混合正整数和负整数？ 比如：x[c(-1, 2)]
 
 
-重新设定个水平值对应的类别值
-
-```{r}
-(a<-c("Poor","Improved","Excellent","Poor")) 
-(b<-factor(a,levels=c("Poor","Improved","Excellent")))  
-(b<-factor(a,levels=c("Poor","Improved","Excellent"),labels=c("C","B","A")))  
-rm(a,b)
-```
-
-**注意，factor的存储类型是integer，显示出来的其实是其标签，character转换为factor的时候，其字符被转换为了数字的标签，可以修改这个标签**
-
-
-##### 借助类型转换增加因子的水平
-
-```{r}
-(a<-c("A","C","B","C")) 
-(b<-as.factor(a))
-b[5]<-"D"                # 臣妾又错了
-c<-as.vector(b)
-typeof(c)
-c[5]<-"D"
-(b<-as.factor(c))
-```
-
----
-
-
-对factor进行summary时，仅计算其频数，而不做其他
-
-```{r}
-patientID <- c(1, 2, 3, 4)
-age <- c(25, 34, 28, 52)
-diabetes <- c("Type1", "Type2", "Type1", "Type1")
-status <- c("Poor", "Improved", "Excellent", "Poor")
-diabetes <- factor(diabetes)
-status <- factor(status, order = TRUE)
-patientdata <- data.frame(patientID, age, diabetes, 
-    status)
-str(patientdata)
-summary(patientdata)
-```
-
-
----
-
-
-## 2. 从文本文件读数据
-
-#### scan读向量，需要各列数据存储类型相同
-
-
-> Forest<-scan(file="ForestData.txt",what=double(),skip=1)  # 你砍了臣妾吧
-
----
-
-#### read.table读到data.frame，字串会自动转因子
-
-```{r}
-Forest<-read.table(file="ForestData.txt",header=TRUE)
-str(Forest)
-names(Forest)          # variable names
-Forest<-read.table(file="ForestData.txt",header=TRUE,stringsAsFactors=FALSE)
-Forest<-read.table(file="ForestData.txt",header=TRUE,
-  colClass=c("integer","integer","character","character","double","integer","double","double","double"))
-Forest$month<-factor(Forest$month,order=TRUE,levels=c("jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"))
-str(Forest)
-```
-
-
----
-
-## 3. 读外部数据
-
-#### 读取SPSS数据
+### 逻辑向量
 
 
 ```{r}
-library(foreign)
-Forest<-read.spss(file="ForestData.sav",use.value.labels = TRUE, to.data.frame = TRUE)
-str(Forest)
+x[c(TRUE, TRUE, FALSE, FALSE)]
 ```
 
----
-
-#### 读取excel数据
-需要先安装包xlsx
-
-> install.packages("xlsx")
 
 ```{r}
-library("xlsx")
-Forest<-read.xlsx("ForestData.xlsx",1,header=TRUE,as.data.frame=TRUE)
-str(Forest)
-levels(Forest$month)
-Forest$month<-factor(Forest$month,order=TRUE,levels=c("jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"))
-levels(Forest$month)
+x[x > 3]
 ```
 
----
 
-#### R自带数据集的使用
+> 如果是x[c(TRUE, FALSE)]，会得到什么？
+
+> 如果是x[c(TRUE, TRUE, NA, FALSE)]，会得到什么？
+
+
+
+
+### 空索引
 
 ```{r}
-data()
-data("AirPassengers")
+x[]
 ```
+
+```{r}
+x[0]
+```
+
+### 字符串向量
+
+```{r}
+(y <- setNames(x, letters[1:4]))
+```
+
+
+```{r}
+y[c("d", "c", "a")]
+```
+
+> 如果是y[c("a", "a", "a")]，会得到什么？
+
+
+> 如果是z <- c(abc = 1, def = 2)，那么z[c("a", "d")]会得到什么？
+
+
+
+
+
+## 列表
+
+使用"["可以从列表中返回列表，使用“[[”、“$”可以将列表中的元素取出。
+
+
+
+## 矩阵和数组
+
+
+有三种办法可以从高位数据结构中选取子集：
++ 使用多个向量
++ 使用单个向量
++ 使用矩阵
+
+
+### 使用多个向量
+
+
+```{r}
+a <- matrix(1:9, nrow = 3)
+colnames(a) <- c("A", "B", "C")
+a
+a[1:2, ]
+```
+
+```{r}
+a[c(TRUE, FALSE, TRUE), c("B", "A")]
+```
+
+
+
+
+
+### 使用一个向量
+
+
+
+```{r}
+(vals <- outer(1:5, 1:5, FUN = "paste", sep = ","))
+```
+
+
+
+```{r}
+vals[c(4, 15)]
+```
+
+
+
+### 使用矩阵
+
+
+```{r}
+select <- matrix(ncol = 2, byrow = TRUE, c(
+  1, 1,
+  3, 1,
+  2, 4
+))
+select
+vals[select]
+```
+
+## 数据框
+
+
+
+```{r}
+df <- data.frame(x = 1:3, y = 3:1, z = letters[1:3])
+
+df[df$x == 2, ]
+```
+
+
+
+```{r}
+df[c(1, 3), ]
+```
+
+
+可以用一个向量，也可以用一个矩阵选取数据框。
+
+```{r}
+df[c("x", "z")]
+```
+
+```{r}
+df[, c("x", "z")]
+```
+
+
+以下两种方法取得的数据结构不同：
+
+```{r}
+df["x"]
+str(df["x"])
+```
+
+```{r}
+df[, "x"]
+str(df[, "x"])
+```
+
+
+
+## 练习
+
+### 纠正下列错误
+
+mtcars[mtcars$cyl = 4, ]
+mtcars[-1:4, ]
+mtcars[mtcars$cyl <= 5]
+mtcars[mtcars$cyl == 4 | 6, ]
+mtcars[1:20]
+
+
+### 以下输出的结果是什么？
+
++ EXAM1
+
+x <- 1:5
+x[NA]
+
+
++ EXAM2
+
+df[1,1] <- NA
+df[is.na(df)] <- 0
+df
+
+
+
+
+# 子集选取
+
+## 运算符
+
+
+
+> “If list x is a train carrying objects, then x[[5]] is the object in car 5; x[4:6] is a train of cars 4-6.”
+> — @RLangTip
+
+当"["应用于列表，它总是返回一个列表，而不能返回列表的内容，获取内容就需要使用"[["或'$'。
+
+
+```{r}
+a <- list(a = 11, b = 12)
+a[[1]]
+a[['a']]
+a$a
+```
+
+
+
+```{r}
+b <- list(a = list(b = list(c = list(d = 1))))
+b[[c("a", "b", "c", "d")]]
+b[["a"]][["b"]][["c"]][["d"]]
+b$a$b$c$d
+```
+
+
+数据框是由列构成的列表，所以也可以用'[['提取列
+
+```{r}
+mtcars
+mtcars[[1]]
+mtcars[["mpg"]]
+mtcars$mpg
+```
+
+
+使用'$'时，如果把数据框中的变量名赋予另一个变量，引用另一个变量会犯错。
+
+
+```{r}
+var <- "cyl"
+mtcars$var
+```
+
+
+和'[['不同，'$'是部分匹配。
+
+```{r}
+x <- list(abc = 1)
+x$a
+```
+
+```{r}
+x[["a"]]
+```
+
+
+
+## 简化与保留
+
+
+
+使选取的子集保持原有的数据结构对编程非常有利，结果总是相同类型。
+
+
+|  | 简化 | 保留 |
+| :------: | :------: | :------: |
+| 向量 | x[[1]] | x[1] |
+| 列表 | x[[1]] | x[1] |
+| 因子 | x[1:4,drop = T] | x[1:4] |
+| 数组 | x[1,] | x[1,,drop = F] |
+| 列表 | x[1,]或x[[1]] | x[,1,,drop = F] |
+
+
+### 原子向量
+
+**保留**
+
+```{r}
+x <- c(a = 1, b = 2)
+x[1]
+```
+
+**简化**
+
+```{r}
+x[[1]]
+```
+
+
+
+### 列表
+
+**保留**
+
+```{r}
+y <- list(a = 1, b = 2)
+str(y[1])
+```
+
+**简化**
+
+```{r}
+str(y[[1]])
+```
+
+
+
+
+
+### 因子
+
+**保留**
+
+```{r}
+z <- factor(c("a", "b"))
+z[1]
+```
+
+**简化**
+
+```{r}
+z[1, drop = TRUE]
+```
+
+
+
+### 矩阵或数组
+
+**保留**
+
+```{r}
+a <- matrix(1:4, nrow = 2)
+a[1, , drop = FALSE]
+```
+
+**简化**
+
+```{r}
+a[1, ]
+```
+
+
+
+
+
+### 数据框
+
+**保留**
+
+```{r}
+df <- data.frame(a = 1:2, b = 1:2)
+str(df[1])
+```
+
+```{r}
+str(df[, "a", drop = FALSE])
+```
+
+
+**简化**
+
+```{r}
+str(df[[1]])
+```
+
+
+```{r}
+str(df[, "a"])
+```
+
+
+
+# 子集选取与赋值
+
+
+## 子集选取的运算符可以和赋值结合一起
+
+
+```{r}
+x <- 1:5
+x[c(1, 2)] <- 2:3
+x
+```
+
+
+```{r}
+x[-1] <- 4:1
+x
+```
+
+
+
+```{r}
+x[c(1, 1)] <- 2:3
+x
+```
+
+
+**不能用NA作下标**
+
+```{r}
+# x[c(1, NA)] <- c(1, 2)
+```
+
+**不能混合逻辑值和NA作下标，NA会被视作F**
+
+```{r}
+x[c(T, F, NA)] <- 1
+x
+```
+
+
+
+```{r}
+df <- data.frame(a = c(1, 10, NA))
+df$a[df$a < 5] <- 0
+df$a
+```
+
+
+
+## 子集选取时可以使用空引用再结合赋值，仍保持原对象的类和数据结构
+
+
+```{r}
+mtcars[] <- lapply(mtcars, as.integer)
+mtcars
+```
+
+
+```{r}
+mtcars <- lapply(mtcars, as.integer)
+mtcars
+```
+
+
+## 选取子集+赋值+NULL可以去除列表元素
+
+
+```{r}
+x <- list(a = 1, b = 2)
+x[["b"]] <- NULL
+str(x)
+```
+
+
+## 使用'['和list(NULL)可以为list添加NULL
+
+```{r}
+y <- list(a = 1)
+y["b"] <- list(NULL)
+str(y)
+```
+
+
+```{r}
+y <- list(a = 1)
+y["b"] <- NULL
+str(y)
+```
+
+
+
+# 应用
+
+## 查询表
+
+```{r}
+x <- c("m", "f", "u", "f", "f", "m", "m")
+lookup <- c(m = "Male", f = "Female", u = NA)
+lookup[x]
+```
+
+
+```{r}
+unname(lookup[x])
+```
+
+
+
+
+## 手工比对和合并
+
+
+```{r}
+grades <- c(1, 2, 2, 3, 1)
+
+info <- data.frame(
+  grade = 3:1,
+  desc = c("Excellent", "Good", "Poor"),
+  fail = c(F, F, T)
+)
+```
+
+
+```{r}
+id <- match(grades, info$grade)
+info[id, ]
+```
+
+
+```{r}
+rownames(info) <- info$grade
+info[as.character(grades), ]
+```
+
+
+## 随机样本
+
+
+```{r}
+df <- data.frame(x = rep(1:3, each = 2), y = 6:1, z = letters[1:6])
+
+# Set seed for reproducibility
+set.seed(10)
+
+# Randomly reorder
+df[sample(nrow(df)), ]
+```
+
+
+```{r}
+df[sample(nrow(df), 3), ]
+```
+
+
+```{r}
+df[sample(nrow(df), 6, rep = T), ]
+```
+
+
+
+## 排序
+
+```{r}
+x <- c("b", "c", "a")
+order(x)
+```
+
+
+```{r}
+x[order(x)]
+```
+
+
+
+```{r}
+df2 <- df[sample(nrow(df)), 3:1]
+df2
+```
+
+
+
+```{r}
+df2[order(df2$x), ]
+```
+
+
+```{r}
+df2[, order(names(df2))]
+```
+
+
+## 展开重复记录
+
+
+```{r}
+df <- data.frame(x = c(2, 4, 1), y = c(9, 11, 6), n = c(3, 5, 1))
+rep(1:nrow(df), df$n)
+```
+
+
+## 删掉数据框中某些列
+
+
+```{r}
+df <- data.frame(x = 1:3, y = 3:1, z = letters[1:3])
+df$z <- NULL
+df
+```
+
+```{r}
+df <- data.frame(x = 1:3, y = 3:1, z = letters[1:3])
+df[c("x", "y")]
+```
+
+
+```{r}
+df <- data.frame(x = 1:3, y = 3:1, z = letters[1:3])
+df[setdiff(names(df), "z")]
+```
+
+## 根据条件选择行
+
+```{r,echo=FALSE}
+mtcars
+# mtcars[mtcars$gear == 5, ]
+```
+
+
+```{r}
+# mtcars[mtcars$gear == 5 & mtcars$cyl == 4, ]
+```
+
+```{r}
+# mtcars[mtcars$gear == 5 & mtcars$cyl == 4, ]
+```
+
+
+## 布尔代数与集合
+
+```{r}
+x <- sample(10) < 4
+which(x)
+```
+
+
+```{r}
+unwhich <- function(x, n) {
+  out <- rep_len(FALSE, n)
+  out[x] <- TRUE
+  out
+}
+unwhich(which(x), 10)
+```
+
+
+
+
+
+
+
+
+
+
+
 
 
 

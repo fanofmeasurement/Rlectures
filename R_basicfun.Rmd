@@ -1,0 +1,221 @@
+---
+title: "R的常用函数与数据结构"
+author: "李峰"
+date: "2019年4月"
+output:
+  html_document: 
+    number_sections: yes
+    theme: lumen
+    toc: yes
+    toc_depth: 5
+---
+
+
+---
+
+
+# 基础函数
+
+
+
+## 首先要学习的函数
+
++ ?   
+R中的帮助功能
+
+```{r}
+? str
+```
+
+
++ str   
+显示对象内部结构
+```{r}
+x <- 1:7
+str(x)
+```
+
+
+## 重要的操作符
+
++ %in%, match
++ =, <-, <<-
++ $, [, [[, head, tail, subset
++ with
++ assign, get
+
+
+## 比较
+
++ all.equal, identical
++ !=, ==, >, >=, <, <=
++ is.na, complete.cases
++ is.finite
+
+
+
+## 基础数学
+
++ *, +, -, /, ^, %%, %/%
++ abs, sign
++ acos, asin, atan, atan2
++ sin, cos, tan
++ ceiling, floor, round, trunc, signif
++ exp, log, log10, log2, sqrt
++ max, min, prod, sum
++ cummax, cummin, cumprod, cumsum, diff
++ pmax, pmin
++ range
++ mean, median, cor, sd, var
++ rle
+
+## 处理函数的函数
+
++ function
++ missing
++ on.exit
++ return, invisible
+
+## 逻辑与集合
+
++ &, |, !, xor
++ all, any
++ intersect, union, setdiff, setequal
++ which
+
+
+## 向量和矩阵
+
++ c, matrix
++ length, dim, ncol, nrow
++ cbind, rbind
++ names, colnames, rownames
++ t
++ diag
++ sweep
++ as.matrix, data.matrix
+
+
+
+## 构建向量
+
++ c
++ rep, rep_len
++ seq, seq_len, seq_along
++ rev
++ sample
++ choose, factorial, combn
++ (is/as).(character/numeric/logical/...)
+
+## 列表和数据框
+
++ list, unlist
++ data.frame, as.data.frame
++ split
++ expand.grid
+
+
+## 控制流
+
++ if, &&, || (short circuiting)
++ for, while
++ next, break
++ switch
++ ifelse
+
+
+## apply函数
+
++ lapply, sapply, vapply
++ apply
++ tapply
++ replicate
+
+
+
+
+# 常见数据结构
+
+## 日期数据
+
++ ISOdate, ISOdatetime, strftime, strptime, date
++ difftime
++ julian, months, quarters, weekdays
++ library(lubridate)
+
+## 字符处理
+
++ grep, agrep
++ gsub
++ strsplit
++ chartr
++ nchar
++ tolower, toupper
++ substr
++ paste
++ trimws
++ library(stringr)
+
+
+## 因子
+
++ factor, levels, nlevels
++ reorder, relevel
++ cut, findInterval
++ interaction
++ options(stringsAsFactors = FALSE)
+
+## 数组处理
+
++ array
++ dim
++ dimnames
++ aperm
++ library(abind)
+
+
+
+# 统计函数
+
+
+## 排序和制表
+
++ duplicated, unique
++ merge
++ order, rank, quantile
++ sort
++ table, ftable
+
+
+## 线性模型
+
++ fitted, predict, resid, rstandard
++ lm, glm
++ hat, influence.measures
++ logLik, df, deviance
++ formula, ~, I
++ anova, coef, confint, vcov
++ contrasts
+
+
+## 随机变量
+
++ (q, p, d, r) * (beta, binom, cauchy, chisq, exp, f, gamma, geom, 
+  hyper, lnorm, logis, multinom, nbinom, norm, pois, signrank, t, 
+  unif, weibull, wilcox, birthday, tukey)
+
+
+## 矩阵算法
+
++ crossprod, tcrossprod
++ eigen, qr, svd
++ %*%, %o%, outer
++ rcond
++ solve
+
+
+
+
+
+
+

@@ -1,7 +1,7 @@
 ---
 title: "R的数据组织之一"
 author: "李峰"
-date: "2019年3月18日"
+date: "2019年3月"
 output:
   html_document: 
     number_sections: yes
@@ -11,6 +11,7 @@ output:
 ---
 
 
+
 ---
 
 # R的帮助、包和运行
@@ -18,17 +19,20 @@ output:
 ## R的帮助
 
 
+
+
 ```{r}
 help("Foreign")
 ```
 
-## R包的使用
 
+## R包的使用
 
 先加载
 ```{r}
 library(knitr)
 ```
+
 
 后浏览
 ```{r}
@@ -281,8 +285,6 @@ is.list(mod)
 
 
 
-
-
 ### 属性(attribution)
 
 
@@ -397,7 +399,7 @@ levels(x)
 ```{r}
 sex_char <- c("m", "m", "m")
 sex_factor <- factor(sex_char, levels = c("m", "f"))
-
+levels(sex_factor)
 table(sex_char)
 ```
 
@@ -448,6 +450,7 @@ a
 + 1 == "1"
 + -1 < FALSE
 + "one" < 2
+
 
 
 

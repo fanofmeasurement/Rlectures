@@ -1,0 +1,344 @@
+---
+title: "R面向对象的编程"
+author: "李峰"
+date: "2019年4月"
+output:
+  html_document: 
+    number_sections: yes
+    theme: lumen
+    toc: yes
+    toc_depth: 5
+---
+
+
+---
+
+
+所有面向对象系统（Object Oriented System, OO）的核心都是类和方法。一个面向对象系统的核心是其实现的类 (class) 和方法(method)
+
++ 类（class）通过描述对象的属性以及对象与其他类的关系来定义对象的行为
+
++ 如果一个对象属于某个类, 则称该对象是这个类的实例
+(instance).
+
+
++ 方法（method）是一种与特定类的对象关联的函数
+
++ 类通常是分层的，如果子类中不存在某个方法，那么就会用父类的方法，子类从父类继承方法
+
+
+```{r}
+library(pryr)
+```
+
+
+# R的基础类型
+
+
+
++ R的基础类通常由C代码操作，它们提供了其他OO系统的基本单元。**原子向量**和**列表**是最常见的基础类，还有函数、环境等。
+
++ 基础类包含对象的内容、内存分配和类型
+
++ 只有R的核心团队才能增加R的基础类
+
++ 可以使用任意基础类来构建S3对象，使用特殊的基础类构建S4对象
+
+
++ 可以使用typeof()判断是否基础类，但基础类返回的类型名也不相同
+
+```{r}
+f <- function() {}
+typeof(f)
+is.function(f)
+```
+
++ 任何函数都是**闭包**
+
+
+```{r}
+typeof(sum)
+is.primitive(sum)
+```
+
++ sum()是**内建**的，是**primitive**的，是用户无法创建的，没有源码，也无法再编译
+
+
+
+
+# S3
+
+S3是R的第一个也是最简单的OO系统，也是R基础包和统计包中唯一使用的OO系统
+
++ S3 实现了一种基于泛型函数的面向对象方式.泛型函数是一种特殊的函数, 其根据传入对象的类型决定调用哪个具体的方法
+
++ 面向对象在 R 中的主要用途是 print, summary 和 plot 的方
+法. 这些方法允许我们仅仅使用一个泛型函数名, 比如summary(), 就能根据一个对象不同的类型来显示它
+
+
+```{r}
+x <- rep(0:1, c(10, 20))
+summary(x)
+```
+
+
+```{r}
+y <- as.factor(x)
+summary(y)
+```
+
+
+
+
+## S3的对象、泛型函数与方法
+
+判断是否S3
+
++ is.object(x) & !isS4(x)
++ pryr::otype()
+
+
+```{r}
+library(pryr)
+
+df <- data.frame(x = 1:10, y = letters[1:10])
+is.object(df) & !isS4(df)
+otype(df)    
+```
+
+
+## S3中，方法属于函数
+
+
+### S3中的函数称为泛型函数（generic function）
+
+由泛型函数 (generic function) 来决定对某个对象使用的方法. 所有泛型函数都有类似的形式: 一个广义的函数名, 并调用 UseMethod() 来决定为对象分派哪个方法. 这也使得泛型函数的形式都很简单, 比如 mean()
+
+
+UseMethod() 会根据对象的 class 属性来决定分派什么方法,所以方法必须以 generic.class 的方式命名才能被 UseMethod() 找到, 比如:
+
+
++ mean.numeric <- function(x, ...) sum(x)/length(x)
++ mean.data.frame <- function(x, ...) sapply(x, mean, ...)
++ mean.matrix <- function(x, ...) apply(x, 2, mean)
+
+
+```{r}
+mean
+ftype(mean)
+```
+
+
+
+
+### 如何检查一个函数是S3方法还是S3泛型函数？
+
+假定有一个类，S3泛型函数的任务是调用正确的S3方法，如mean()的日期方法是mean.Date()，print()的因子方法是print.factor()。
+
+这样容易造成混淆，一般的编程语言是**类.方法**，比如python。那么对S3来说，t.test()是对象t的test方法吗？对print.data.frame来说是print的data.frame方法吗？
+```{r}
+ftype(t.data.frame) 
+```
+
+
+
+```{r}
+ftype(t.test)
+```
+
++ 对于一个给定的类，可以看到它所有的泛型函数。
+
+
+```{r}
+methods(class = "ts")
+```
+
+
+
+## 定义类和创建对象
+
+
+可以使用structure()和class()来创建类，S3 对象往往是一个 list 并有一个名为 class 的属性。
+
+
+```{r}
+x <- 1
+attr(x, "class") <- "foo"
+x
+class(x)
+
+```
+
+
+
+
+
+```{r}
+x <- structure(1, class = "foo")
+x
+class(x)
+```
+
+
++ 一个对象可以有多个类型, 表现为其 class 属性是一个向量.
+
+```{r}
+class(x) <- c("foo", "bar")
+class(x)
+```
+
+
+## 定义类的实例
+
+```{r}
+bar <- function(x) UseMethod("bar", x)
+bar.default <- function(x) {
+  print(x)
+}
+bar.y <- function(x) {
+  print(x^2)
+}
+bar.z <- function(x) {
+  print(x^3)
+}
+foo <- structure(2, class = "nonsense")
+bar(foo)
+
+```
+
+
+
+```{r}
+foo <- structure(2, class = c("y", "z"))
+bar(foo)
+```
+
+
+## 编写构造函数来创建类
+
+```{r}
+Complex <- function(real, imaginary) {
+  structure(list(real,imaginary), class = "Complex")
+}
+
+print.Complex <- function(x) {
+  print(paste(x[1],"+",x[2],"i",sep = ""))
+}
+
+c1 = Complex(10,20)
+print(c1)
+```
+
+
+
+
+## 有效利用S3对象
+
+
+```{r}
+fit <- lm(dist ~ speed, data = cars)
+(sigma2 <- summary(fit)$sigma^2)
+```
+
+
+
+```{r}
+co2.d <- decompose(co2, type = "multiplicative")
+plot(co2.d$x, ylim = c(0, 400), type = "l")
+lines(co2.d$seasonal)
+lines(co2.d$trend)
+lines(co2.d$random)
+m <- cbind(co2.d$x, co2.d$seasonal, co2.d$trend, co2.d$random)
+co2.mts <- ts(m)
+plot(co2.mts)
+```
+
+
+
+# S4
+
+S4更加严谨，方法仍然是函数而非类。
+
+
+## 构造S4
+
+S4必须通过setClass()来定义，使用new()来创建对象。S4有三个关键性质：
+
++ S4使用开头大写字母的驼峰拼法
++ S4带有名字的字段(slot)列表
++ S4有一个用来描述它的父类的字符串
+
+
+
+```{r}
+setClass("Person",
+  slots = list(name = "character", age = "numeric"))
+setClass("Employee",
+  slots = list(boss = "Person"),
+  contains = "Person")
+
+alice <- new("Person", name = "Alice", age = 40)
+john <- new("Employee", name = "John", age = 20, boss = alice)
+```
+
+
++ 获取S4的值可以使用@而非$
+
+
+```{r}
+alice@age
+```
+
+
+
+```{r}
+slot(john, "boss")
+```
+
+
+
+## 识别S4
+
++ str()，返回formal
++ isS4()，返回TRUE
++ pryr::otype()，返回S4
+
+
+# RC(Reference classes)
+
+RC是最新的OO系统，RC的方法属于对象而非函数，更接近一般的编程语言。
+
+## RC的实例
+
+
+```{r}
+Account <- setRefClass("Account",
+  fields = list(balance = "numeric"),
+  methods = list(
+    withdraw = function(x) {
+      balance <<- balance - x
+    },
+    deposit = function(x) {
+      balance <<- balance + x
+    }
+  )
+)
+```
+
+
+
+
+```{r}
+a <- Account$new(balance = 100)
+a$deposit(100)
+a$balance
+a$withdraw(100)
+a$balance
+```
+
+
+# 大部分情况下，有S3基本够用
+
+
+
+

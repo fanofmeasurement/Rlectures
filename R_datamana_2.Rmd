@@ -1,7 +1,7 @@
 ---
 title: "R的数据管理之二"
 author: "李峰"
-date: "2017年3月21日"
+date: "2019年4月"
 output:
   html_document: 
     number_sections: yes

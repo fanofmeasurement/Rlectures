@@ -1,9 +1,12 @@
 ---
 title: "R的数据管理之一"
 author: "李峰"
-date: "2017年3月15日"
+date: "2019年4月"
 output:
-  html_document: default
+  html_document: 
+    number_sections: yes
+    toc: yes
+    toc_depth: 5
 ---
 
 
@@ -26,7 +29,7 @@ leadership <- data.frame(manager, date, gender, age,
 rm(manager, date, gender, age, q1, q2, q3, q4, q5)
 ```
 
-## 1. 数据合并和整合
+# 数据合并和整合
 
 * 对数据框，根据关键字的合并，使用*merge*函数
 
@@ -59,7 +62,7 @@ mtcars
 
 
 
-## 2. 数据排序
+# 数据排序
 
 * 数据的排序可以帮助我们很快找到缺失值。
 * R的排序功能返回一个位置向量，和MATLAB一样，这个功能可先对一个矩阵按照某列进行排序，得到位置向量，再要求另一个矩阵按照这个顺序进行排列，保证两个矩阵都按照相同的顺序按行排列。
@@ -85,7 +88,7 @@ a<-ReportCard[Ord,]
 fix(a)
 ```
 
-## 3.缺失数据报告
+# 缺失数据报告
 
 
 * R的缺失也有两类，sysmis和user missing，前者是*NA*(Not Avaliable)，后者是*NaN*(Not a Number)。
@@ -126,16 +129,16 @@ md.pattern(ReportCard)
 
 
 
-## 4. 变量计算
+# 变量计算
 
 
 * 对象的基本运算
 
 
 ```{r}
-attach(ReportCard)           # 将变量框读到内存，你行你上
+attach(ReportCard)           # 将变量框读到内存
 SumScore<-poli+chi+math+fore+phy+che+geo+his
-detach(ReportCard)           # 将变量框从内存施放出来，不行下来
+detach(ReportCard)           # 将变量框从内存施放出来
 AvScore<-SumScore/8
 ReportCard$sumScore<-SumScore
 ReportCard$avScore<-AvScore
@@ -232,29 +235,6 @@ head(mydata, n=10)
 
 
 
-* 用户自定义函数
-
-```{r}
-MyFun<-function(dataname1=x1,dataname2=x2,key=c){
- result<-merge(dataname1,dataname2,by=key)
- return(result)
-}
-
-# 函数名 myfun  R是你的快乐？
-# function 是命令
-# 小括号里是形参
-# 大括号里是函数体，就是函数的功能部分，函数体部分是局部变量，仅存在于你的小世界（大括号里）
-# return 是函数调用的结果返回
-# 先定义，再调用
-
-```
-
-```{r}
-MyData<-MyFun(dataname1=ReportCard1,dataname2=ReportCard2,key="xh")
-MyData<-MyFun(ReportCard1,ReportCard2,"xh")   # 这个调用有点随意
-```
-
-
 
 * 矩阵合并
 
@@ -318,7 +298,7 @@ rm(m1,m2,mm1,mm2,mm3)
 
 
     
-## 5. 变量的RECODE   
+# 变量的RECODE   
 
 
 * 对连续变量进行分类
@@ -381,7 +361,7 @@ leadership <- within(leadership, {
 })
 ```
 
-## 6. 其他
+# 其他
 
 * 变量重命名,使用*reshape*包里的*rename*
 

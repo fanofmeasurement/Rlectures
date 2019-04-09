@@ -1,9 +1,12 @@
 ---
 title: "R的数据管理之二"
 author: "李峰"
-date: "2017年3月21日"
+date: "2019年4月"
 output:
-  html_document: default
+  html_document: 
+    number_sections: yes
+    toc: yes
+    toc_depth: 5
 ---
 
 
@@ -16,10 +19,10 @@ ReportCard<-merge(ReportCard1,ReportCard2,by="xh")
 
 
 
-###  1. 选择数据
+# 选择数据
 
 
-####　1.1 选择cases
+## 选择cases
 
 ```{r}
 unique(ReportCard$sex) 
@@ -97,7 +100,7 @@ MaleScore4<-subset(ReportCard,ReportCard$sex=="F" | ReportCard$avScore=="B")
 
 
 
-> 问题来了，对下面的leadership数据，如何挑选30岁以上的所有男性？
+> 对下面的leadership数据，如何挑选30岁以上的所有男性？
 
 ```{r,echo=F}
 manager <- c(1, 2, 3, 4, 5)
@@ -128,7 +131,7 @@ MySample<-ReportCard[bh,]
 
 
 
-#### 1.2 选择变量
+## 选择变量
 
 * 保留部分变量到新的数据框里
 
@@ -196,9 +199,9 @@ write.table(ReportCard,file="ReportCard.txt",sep=" ",quote=FALSE,append=FALSE,na
 
 
 
-### 2.控制流
+# 控制流
 
-####　2.1 重复和循环
+## 重复和循环
 
 R的循环效率比较低（其实，所有的循环效率都比较低），可能的话尽量利用apply族的函数
 
@@ -241,7 +244,7 @@ repeat{
 }
 ```
 
-####　2.2 条件执行
+## 条件执行
 
 * if 结构，我**"一"**见你**"就"**笑
 
@@ -267,7 +270,7 @@ if(Price>=5000) print("off 15%")
 
 ![ ](http://www.2cto.com/uploadfile/2014/0813/20140813032836670.jpg)
 
-> **如果**你非要离开，**那**我就当你死了————赵雷
+
 
 ```{r}
 if(Price<200) print("No discount!") else{

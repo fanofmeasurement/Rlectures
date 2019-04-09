@@ -1,10 +1,256 @@
 ---
-title: "R的描述统计之二"
+title: "R的描述统计"
 author: "李峰"
 date: '`r strftime(Sys.time(), format = "%B %d, %Y")`'
 output:
-  html_document: default
+  html_document: 
+    number_sections: yes
+    toc: yes
+    toc_depth: 5
 ---
+
+
+
+```{r,echo=F}
+ReportCard<-read.table(file="ReportCard.txt",header=TRUE,sep=" ")
+fix(ReportCard)
+```
+
+
+
+
+
+## 数值型单变量描述
+
+
+### 基本描述统计
+
+
+* 一个变量的描述统计
+
+使用**summary(数据对象名)**函数
+
+
+```{r}
+attach(ReportCard)
+(Av.Poli<-mean(poli))
+(Av.Poli<-mean(poli,na.rm=TRUE))
+(Sd.Poli<-sd(poli,na.rm=TRUE))
+(N<-length(poli[!is.na(poli)]))
+summary(poli)
+detach(ReportCard)
+```
+
+
+绘制boxplot
+
+```{r}
+boxplot(ReportCard$poli,horizontal=FALSE,main="政治分数")
+```
+
+绘制基于频数的histogram
+
+```{r}
+hist(ReportCard$poli)
+```
+
+绘制基于比例的histogram
+
+```{r}
+hist(ReportCard$poli,freq=FALSE)
+```
+
+绘制基于比例的、有轴标签和图名的histogram
+
+```{r}
+hist(ReportCard$poli,xlab="政治分数",ylab="频率",main="政治分数直方图",
+     cex.lab=0.8,freq=FALSE,ylim=c(0,0.05))
+```
+
+*cex.lab*定义轴标签字体大小。
+
+*ylim*定义y轴区间。
+
+
+在histgram上加正态分布图
+
+
+```{r}
+Meanpoli=mean(ReportCard$poli,na.rm=TRUE)
+Sdpoli=sd(ReportCard$poli,na.rm=TRUE)
+d=seq(from=min(ReportCard$poli,na.rm=TRUE),to=max(ReportCard$poli,na.rm=TRUE),by=1)
+hist(ReportCard$poli,xlab="政治分数",ylab="频率",main="政治分数直方图",
+     cex.lab=0.8,freq=FALSE,ylim=c(0,0.05))
+lines(x=d,y=dnorm(d,Meanpoli,Sdpoli),lty=2,col=2)
+```
+
+*lty*定义线形，2是虚线。
+
+
+
+*col*定义颜色，调色板中的索引。R中用palette()表示调色板，默认的是颜色是下面的几种，在默认情况下，col=2表示红色。这个颜色会重复利用，如指定col=10同样是红色。
+
+
+```{r}
+palette()
+```
+
+
+也可以根据color、rgb值和hsv值来设定不同的颜色。下图中，第一列是颜色，第二列是hsv(6位16进制的字符串)，第三列是rgb。
+
+![ ](http://www.biostatistic.net/data/attachment/forum/201112/30/161641uv2llrc2pu1plpp6.jpg)
+
+
+
+
+在histgram和正态分布图之上加核密度函数曲线
+
+```{r}
+hist(ReportCard$poli,xlab="政治分数",ylab="频率",main="政治分数直方图",
+     cex.lab=0.8,freq=FALSE,ylim=c(0,0.05))
+lines(x=d,y=dnorm(d,Meanpoli,Sdpoli),lty=2,col=2)
+lines(density(ReportCard$poli,na.rm=TRUE),lty=4,col=4)
+```
+
+
+单独显示核密度函数曲线
+
+```{r}
+plot(density(ReportCard$poli,na.rm=TRUE),main="政治分数的核密度图")
+```
+
+
+可以通过图形控制显示多个图
+
+```{r}
+DrawL<-par(no.readonly = TRUE)
+par(mfrow=c(3,1),mar=c(4,6,4,4))
+hist(ReportCard$poli,xlab="政治分数",ylab="频率",main="政治分数直方图",
+     cex.lab=0.8,freq=FALSE,ylim=c(0,0.05))
+Meanpoli=mean(ReportCard$poli,na.rm=TRUE)
+Sdpoli=sd(ReportCard$poli,na.rm=TRUE)
+d=seq(from=min(ReportCard$poli,na.rm=TRUE),to=max(ReportCard$poli,na.rm=TRUE),by=1)
+hist(ReportCard$poli,xlab="政治分数",ylab="频率",main="政治分数直方图",
+     cex.lab=0.8,freq=FALSE,ylim=c(0,0.05))
+lines(x=d,y=dnorm(d,Meanpoli,Sdpoli),lty=2,col=2)
+lines(density(ReportCard$poli,na.rm=TRUE),lty=4,col=4)
+plot(density(ReportCard$poli,na.rm=TRUE),main="政治分数的核密度图")
+par(DrawL)
+```
+
+
+
+
+也可利用*psych*包计算描述统计量，全覆盖
+
+```{r}
+# install.packages("psych")
+library("psych")
+describe(ReportCard$poli)
+```
+
+
+* 多个变量的描述统计
+
+计算每门课程的平均分和总分
+
+```{r}
+(Av.Course<-sapply(ReportCard[,3:10],FUN=mean,na.rm=TRUE))
+(Sd.Course<-sapply(ReportCard[,3:10],FUN=sd,na.rm=TRUE))
+```
+
+
+为多个变量绘制核密度函数曲线
+
+```{r}
+Draw<-par(no.readonly = TRUE)
+par(mfrow=c(2,1),mar=c(4,6,4,4))
+plot(density(ReportCard$chi,na.rm=TRUE),main="语文分数的核密度图")
+plot(density(ReportCard$math,na.rm=TRUE),main="数学分数的核密度图")
+par(Draw)
+```
+
+
+
+计算每门课程的平均分和总分
+
+```{r}
+(Av.Course<-colMeans(ReportCard[,3:10],na.rm=TRUE))
+(Sum.Course<-colSums(ReportCard[,3:10],na.rm=TRUE))  
+```
+
+计算每个同学的平均分和总分
+
+```{r}
+Av.Person<-rowMeans(ReportCard[,3:10],na.rm=TRUE)
+Sum.Person<-rowSums(ReportCard[,3:10],na.rm=TRUE)
+```
+
+
+
+* 多个变量的多个描述统计
+
+计算每门课程的描述统计量（用户自定义函数的定义和调用）
+
+```{r}
+Des.Fun<-function(x,...){
+ Av<-mean(x,na.rm=TRUE)
+ Sd<-sd(x,na.rm=TRUE)
+ N<-length(x[!is.na(x)])
+ Sk<-sum((x[!is.na(x)]-Av)^3/Sd^3)/N
+ Ku<-sum((x[!is.na(x)]-Av)^4/Sd^4)/N-3
+ result<-list(avg=Av,sd=Sd,skew=Sk,kurt=Ku)
+ return(result)
+}
+(DesRep<-sapply(ReportCard[,3:10],FUN=Des.Fun,na.rm=TRUE)) # 函数体也可以传递
+```
+
+
+
+### 分组描述统计
+
+
+```{r}
+MaleCard<-subset(ReportCard,ReportCard$sex=="M")
+(Des.Male<-sapply(MaleCard[3:10],FUN=Des.Fun,na.rm=TRUE))
+FeMaleCard<-subset(ReportCard,ReportCard$sex=="F")
+(Des.FeMale<-sapply(FeMaleCard[3:10],FUN=Des.Fun,na.rm=TRUE))
+Des.Sex<-cbind(Des.Male,Des.FeMale)
+```
+
+
+```{r}
+(Des.Gender<-tapply(ReportCard$poli,INDEX=ReportCard$sex,FUN=Des.Fun,na.rm=TRUE))
+```
+
+
+```{r}
+boxplot(poli~sex,data=ReportCard,main="男生和女生的政治分数")
+```
+
+
+
+
+## 分类型单变量描述
+
+
+```{r}
+(avFreTable<-table(ReportCard$avScore))
+prop.table(avFreTable)
+prop.table(avFreTable)*100
+```
+
+
+```{r}
+NumGrade<-tapply(ReportCard$avScore,INDEX=ReportCard$avScore,FUN=length)
+barplot(NumGrade,xlab="平均分等级",ylab="人数",ylim=c(0,25))
+```
+
+
+```{r}
+barplot(NumGrade,ylab="平均分等级",xlab="人数",xlim=c(0,25),horiz=TRUE,names.arg=c("良","中","及格","不及格"))
+```
+
 
 
 
@@ -16,10 +262,10 @@ ReportCard<-read.table(file="ReportCard.txt",header=TRUE,sep=" ")
 
 
 
-####  1. 数值型双变量描述
+## 数值型双变量描述
 
 
-#####　1.1 计算相关系数和协方差
+### 计算相关系数和协方差
 
 * 使用*cor*和*cov*来计算
 
@@ -78,7 +324,7 @@ pcor(c(1, 5, 2, 3, 6), cov(states))
 ```
 
 
-#####　1.2 相关系数的显著性检验
+### 相关系数的显著性检验
 
 
 ```{r}
@@ -94,7 +340,7 @@ corr.test(states, use = "complete")
 ```
 
 
-#####　1.3 相关系数的可视化
+### 相关系数的可视化
 
 * 两个变量
 
@@ -174,12 +420,6 @@ pairs(~temp+RH+wind+rain,data=Forest,main="森林地区温度、相对湿度、�
 
 
 
-```{r}
-# install.packages("car")
-library("car")
-scatterplotMatrix(~temp+RH+wind+rain,data=Forest,main="森林地区温度、相对湿度、风力和雨量的矩阵散点图",smoother=2,spread=FALSE)
-
-```
 
 
 ```{r}
@@ -214,13 +454,11 @@ coplot(RH~temp|as.factor(X)*as.factor(Y),pch=1,data=Forest,xlab="温度",ylab="�
 
 
 
----
+
+## 分类变量相关性分析
 
 
-####  2. 分类变量相关性分析
-
-
-#####　2.1 描述
+### 描述
 
 
 * 单变量
@@ -270,7 +508,7 @@ CrossTable(ReportCard$sex,ReportCard$avScore)
 
 
 
-#####　2.2 分类变量相关性的检验
+### 分类变量相关性的检验
 
 
 ```{r}
@@ -288,7 +526,7 @@ assocstats(CrossTable)
 ```
 
 
-#####　2.3 分类变量相关性的可视化
+### 分类变量相关性的可视化
 
 
 * 簇状柱形图
@@ -347,5 +585,8 @@ title(main="平均分等级扇形图",cex.main=0.8)
 library("vcd")
 mosaic(~sex+avScore,data=ReportCard,shade=TRUE,legend=TRUE)
 ```
+
+
+
 
 

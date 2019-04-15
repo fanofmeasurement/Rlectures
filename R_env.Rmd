@@ -1,0 +1,419 @@
+---
+title: "R的环境空间"
+author: "李峰"
+date: "2019年4月"
+output:
+  html_document: 
+    number_sections: yes
+    theme: lumen
+    toc: yes
+    toc_depth: 5
+---
+
+
+---
+
+
+
+
+# R的盗梦空间
+
+![](http://i1.fuimg.com/611786/82682ef6b25c1bad.jpg)
+
+
+
+```{r}
+library(pryr)
+```
+
+
+# 环境的概念
+
+> Environments can be thought of as consisting of two things: a frame, which is a set of symbol-value pairs, and an enclosure, a pointer to an enclosing environment. When R looks up the value for a symbol the frame is examined and if a matching symbol is found its value will be returned. If not, the enclosing environment is then accessed and the process repeated. Environments form a tree structure in which the enclosures play the role of parents. The tree of environments is rooted in an empty environment, available through emptyenv(), which has no parent.                               
+                                                                      ------ R Language Definition
+
+
+**环境可以看作由一系列符号-值的对构成的框架和带指针的封闭环境构成。当R寻找一个符号的值时，先在当前框架中找，如果找到就返回其值，如果没找到，就访问其封闭环境，并重复这个过程。环境构成了一个树结构，闭环扮演了“父亲”的角色。环境树的根是空环境，它没有父环境**
+
+
+
+```{r}
+a <- 1234
+e <- globalenv()
+```
+
+
+
+```{r}
+ls()
+ls(e)
+
+e$a
+class(e)
+```
+
+
+```{r}
+rm(e)
+```
+
+
+
+## 环境的作用是将符号与值做关联
+
+### 环境可以看作一口袋的符号
+
+
+![](http://adv-r.had.co.nz/diagrams/environments.png/bag-of-names.png)
+
+
+
+```{r}
+e <- new.env()
+e$a <- FALSE
+e$b <- "a"
+e$c <- 2.3
+e$d <- 1:3
+```
+
+
+![](http://adv-r.had.co.nz/diagrams/environments.png/bindings.png)
+
+
+
+
+### ls()可以将此环境的对象框中所有的绑定关系列出来
+
+```{r}
+ls(e)
+```
+
+
+```{r}
+e$a
+```
+
+
+
+
+## 环境是一个树结构
+
+
+黑点表示一个指针，指向其父环境
+
+![](http://adv-r.had.co.nz/diagrams/environments.png/parents.png)
+
+
+定义一个新环境
+
+
+```{r}
+e <- new.env()
+e
+class(e)
+typeof(e)
+```
+
+
+```{r}
+parent.env(e)
+```
+
+
+
+找到其所有的父环境的父环境的父环境的........
+
+```{r}
+parent.call<-function(e){
+   print(e)
+   if(is.environment(e) & !identical(emptyenv(),e)){
+     parent.call(parent.env(e))
+  }
+}
+parent.call(e)
+```
+
+
+
+```{r}
+search()
+```
+
+### 四个特殊环境：
+
++ 当前环境: environment()
++ 全局环境：globalenv()，通常我们是在这个环境下工作
++ 基础环境: baseenv()
++ 空环境: emptyenv()
+
+
+```{r}
+environment()
+globalenv()
+baseenv()
+emptyenv()
+```
+
+### 当加载一个包的时候，加载的包的环境就在全局环境和之前最后一个包环境之间。
+
+```{r}
+library(abind)
+```
+
+
+```{r}
+search()
+```
+
+
+### 在哪层的梦中？
+
+```{r}
+x <- 5
+where("x")
+```
+
+
+
+```{r}
+y <- 1:100
+meanofy <- mean(y)
+where("mean")
+```
+
+
+```{r}
+where_pseu <- function(name, env = parent.frame()) {
+  print(env)
+  if (identical(env, emptyenv())) {
+    # Base case
+    stop("Can't find ", name, call. = FALSE)
+    
+  } else if (exists(name, envir = env, inherits = FALSE)) {
+    # Success case
+    env
+    
+  } else {
+    # Recursive case
+    where_pseu(name, parent.env(env))
+    
+  }
+}
+```
+
+
+找找graphics包中的*box*函数
+```{r}
+where_pseu("box")
+```
+
+
+找找base包中的*mean*函数
+```{r}
+where_pseu("mean")
+```
+
+
+## 函数的环境
+
+大部分环境都不是通过new.env()创建的，而是使用函数的结果。
+
+### 封闭环境
+
+每个函数有且仅有一个封闭环境，是对函数空间的一个静态定义，在函数定义时指向所在的环境空间。
+
+```{r}
+y <- 1
+f <- function(x){
+  x + y
+}
+environment(f)
+```
+
+![](http://adv-r.had.co.nz/diagrams/environments.png/binding.png)
+
+
+
+### 绑定环境
+
+绑定环境，就是把函数的定义和调用，通过函数变量连起来。比如，我们新建一个环境空间e，在e定义一个函数g，就当相于把一个函数绑定到g变量，通过找到e环境空间中的g变量，就可以调用这个函数。
+```{r}
+e <- new.env()
+e$g <- function() 1
+e$g
+```
+
+![](http://adv-r.had.co.nz/diagrams/environments.png/binding-2.png)
+
+
+**如果我们定义的函数已经在某个包中存在，会不会调用错？**
+
+
+
+```{r}
+environment(sd)
+where("sd")
+```
+
+
+
+
+```{r}
+x <- 1:100
+sd(x)
+```
+
+```{r}
+var <- function(x, na.rm = TRUE) 100
+sd(x)
+var(10)
+```
+
+在全局环境中的var返回的是定义的var()的结果，sd()需要var()时，则是在stat包的命名空间里找。
+
+![](http://adv-r.had.co.nz/diagrams/environments.png/namespace.png)
+
+
+
+### 执行环境
+
+
+
+```{r}
+g <- function(x) {
+  if (!exists("a", inherits = FALSE)) {
+    message("Defining a")
+    a <- 1
+  } else {
+    a <- a + 1
+  }
+  a
+}
+g(10)
+g(10)
+```
+
+执行环境的父环境就是函数的封闭环境，函数执行结束，执行环境就会被销毁。
+
+```{r}
+h <- function(x) {
+  a <- 2
+  x + a
+}
+y <- h(1)
+y
+```
+
+
+![](http://adv-r.had.co.nz/diagrams/environments.png/execution.png)
+
+
+### 调用环境
+
+
+x在调用环境和封闭环境中都存在
+
+```{r}
+h <- function() {
+  x <- 10
+  function() {
+    x
+  }
+}
+i <- h()
+x <- 20
+i()
+```
+
+
+
+```{r}
+f2 <- function() {
+  x <- 10
+  function() {
+    def <- get("x", environment())
+    cll <- get("x", parent.frame())
+    list(defined = def, called = cll)
+  }
+}
+g2 <- f2()
+x <- 20
+str(g2())
+```
+
+
+```{r}
+x <- 0
+y <- 10
+f <- function() {
+  x <- 1
+  g()
+}
+g <- function() {
+  x <- 2
+  h()
+}
+h <- function() {
+  x <- 3
+  x + y
+}
+f()
+```
+
+
+![](http://adv-r.had.co.nz/diagrams/environments.png/calling.png)
+
+
+
+## 绑定名字和数值
+
+
+**延迟绑定**
+
+
+```{r}
+library(pryr)
+system.time(b %<d-% {Sys.sleep(5); 1})
+```
+
+
+
+
+```{r}
+library(pryr)
+system.time(b)
+```
+
+## 环境也是一种数据结构
+
+
+```{r}
+modify <- function(x) {
+  x$a <- 2
+  print(x$a)
+  #invisible()
+}
+```
+
+
+函数如果应用于列表，原始列表不会改变
+
+```{r}
+x_l <- list()
+x_l$a <- 1
+modify(x_l)
+x_l$a
+```
+
+
+如果应用于环境，原始环境会变化
+
+```{r}
+x_e <- new.env()
+x_e$a <- 1
+modify(x_e)
+x_e$a
+```
+
+
+

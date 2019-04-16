@@ -8,7 +8,7 @@
 #### [1.4 R的编程风格](https://github.com/cacolola/Rlectures/blob/master/R_style.Rmd)
 #### [1.5 R的函数](https://github.com/cacolola/Rlectures/blob/master/R_function.Rmd)
 #### [1.6 面向对象的R](https://github.com/cacolola/Rlectures/blob/master/R_OO.Rmd)
-#### [1.6 R的环境空间](https://github.com/cacolola/Rlectures/blob/master/R_env.Rmd)
+#### [1.7 R的环境空间](https://github.com/cacolola/Rlectures/blob/master/R_env.Rmd)
 
 ### 2 R的数据管理和描述统计
 

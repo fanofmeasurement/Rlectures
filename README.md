@@ -18,4 +18,4 @@
 
 
 ### 练习
-#### [R的函数练习](https://github.com/cacolola/Rlectures/blob/master/R_fun_exer.Rmd)
+#### [R的函数练习1](https://github.com/cacolola/Rlectures/blob/master/R_fun_exer.Rmd)

@@ -16,7 +16,8 @@
 #### [2.1 数据合并、排序、缺失和编码](https://github.com/cacolola/Rlectures/blob/master/R_datamana_1.Rmd)
 #### [2.2 数据读取和控制流](https://github.com/cacolola/Rlectures/blob/master/R_datamana_2.Rmd)
 
-### [3 基本描述统计](https://github.com/cacolola/Rlectures/blob/master/R_descri.Rmd)
+### 3 描述统计
+### [3.1 基本方法](https://github.com/cacolola/Rlectures/blob/master/R_descri.Rmd)
 
 
 ### 练习

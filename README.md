@@ -11,11 +11,12 @@
 #### [1.7 R的环境空间](https://github.com/cacolola/Rlectures/blob/master/R_env.Rmd)
 #### [1.8 调试、条件处理和防御式编程]()
 
-### 2 R的数据管理和描述统计
+### 2 R的数据管理
 
 #### [2.1 数据合并、排序、缺失和编码](https://github.com/cacolola/Rlectures/blob/master/R_datamana_1.Rmd)
 #### [2.2 数据读取和控制流](https://github.com/cacolola/Rlectures/blob/master/R_datamana_2.Rmd)
-#### [2.3 基本描述统计](https://github.com/cacolola/Rlectures/blob/master/R_descri.Rmd)
+
+### [3 基本描述统计](https://github.com/cacolola/Rlectures/blob/master/R_descri.Rmd)
 
 
 ### 练习

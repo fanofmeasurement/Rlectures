@@ -1,0 +1,3072 @@
+---
+title: "R_task_1"
+author: "zhuanti"
+date: "2019年4月8日"
+output: 
+  html_document: 
+    number_sections: yes
+    toc: yes
+    toc_depth: 5
+---
+
+
+# 比较 
+
+**陈昌敏、黄子芮 **
+
++ all.equal, identical  #all.equal(x,y):近似相等 identical(x,y)精确相等
++ !=, ==, >, >=, <, <=  比较计算，分别是：不等于，等于，大于，大于等于，小于，小于等于
++ is.na, complete.cases #检测缺失值
++ is.finite  #判断是否为无穷大数
+all.equal() 近似相等 如果不同，仍会在一定程度上进行比较，并返回差异报告。
+```{r }
+x <- c(0,1,1,0,1)
+y <- c(1,0,1,0,1)
+all.equal(x,y)
+```
+
+
+identical() 精确相等，输出结果为FALSE,意味着两者并不精确相等
+```{r cars}
+identical(x,y)
+```
+比较计算
+```{r }
+a <- 1.2
+b <- 2.2
+a == b
+a != b
+a > b
+a >= b
+a < b
+a <= b
+```
+
+检测缺失值
+is.na()作用于检测对象之后将返回一个相同大小的对象，其中缺失值的位置被改写为true，其他不是缺失值的位置则为false。
+```{r}
+c <- c(1,2,NA,3)
+is.na(c)
+```
+
+
+
+complete.cases()缺失值的位置被改写成FALSE，其他不是缺失值的位置则为TRUE，与is.na()的返回值相反
+
+```{r}
+an<-c(1,2,NA)
+complete.cases(an)#显示T OR F
+sum(complete.cases(an))#显示无缺失的总数
+sum(!complete.cases(an))#显示为缺失的个数
+mean(!complete.cases(an))#显示缺失值占总体的比例
+```
+
+判断是否为无穷大数
+```{r}
+d <- 0.555
+is.infinite(d)
+```
+
+
+# 向量和矩阵
+
+**李魏军、李俊良**   
+
++ c, matrix
+c表示向量，例如：c(1:3,9)是指向量：（1，2，3，9）
+matrix函数是R语言中base包里的矩阵函数，matrix(1,2,1)  用来创建一个2行1列数据都是1的矩阵。例如：
+> matrix(1,2,1);
+[,1]
+[1,]    1
+[2,]    1
+> matrix(3,2,2);
+[,1] [,2]
+[1,]    3    3
+[2,]    3    3
+> matrix(3,1,2);
+[,1] [,2]
+[1,]    3    3
+
++ length, dim, ncol, nrow
+R语言当中length往往用于确定数列的长度。比如length（c（1,2,3））长度就是3.ncol和nlow分别对应行和列。定义dimnames=list()则表示其每一个元素都被命名且命名方式是列表（list）
++ cbind, rbind
+把矩阵横向合并成一个大矩阵，纵向
+
+
++ names, colnames, rownames
+给变量修改函数名称，更改变量的名称，去除变量的名称不把行名称读进去
+x=matrix(1:9,nrow=3)
+> x
+[,1] [,2] [,3]
+[1,] 1 4 7
+[2,] 2 5 8
+[3,] 3 6 9
+> row.names(x) <- c("line1","line2","line3")
+> x
+[,1] [,2] [,3]
+line1 1 4 7
+line2 2 5 8
+line3 3 6 9 
+
+
+
+
+# 常见概率分布 
+
+**林为、蒋美志**   
+
+统计分布每一种分布有四个函数：  
+
+q――quantilie（分位数函数）  
+p――distribution （分布函数）  
+d――density（密度函数）  
+r――random（随机数函数）  
+
+比如，正态分布的这四个函数为pnorm，qnorm，dnorm，rnorm。  
+
+
+
+而就分布函数来说，R语言的常用分布函数有：  
+rexp(n, rate=1)                         指数分布    
+rgamma(n, shape, scale=1)               γ分布    
+rpois(n, lambda)                        Poisson分布    
+rweibull(n, shape, scale=1)             Weibull分布    
+rcauchy(n, location=0, scale=1)         Cauchy分布    
+rbeta(n, shape1, shape2)                β分布    
+rt(n, df)                               t分布    
+rf(n, df1, df2)                         F分布    
+rchisq(n, df)                           卡方分布    
+rbinom(n, size, prob)                   二项分布    
+rgeom(n, prob)                          几何分布     
+rhyper(nn, m, n, k)                     超几何分布    
+rlogis(n, location=0, scale=1)          logistic分布    
+rlnorm(n, meanlog=0, sdlog=1)           对数正态    
+rnbinom(n, size, prob)                  负二项分布    
+runif(n, min=0, max=1)                  均匀分布    
+rwilcox(nn, m, n), rsignrank(nn, n)     Wilcoxon分布 
+
+## 离散型
+所谓"离散"是指随机变量只能取有限个或者可列举无穷多个值。  
+常见的离散分布有二项分布、泊松分布、几何分布、负二项分布和多项分布等。  
+
+1.二项分布  
+2.几何分布  
+3.超几何分布  
+4.多项分布  
+5.泊松分布  
+6.负二项分布  
+
+### 二项分布 Binomial distribution：binom
+
+在n次试验中，成功的次数对应一个离散型随机变量X，这样，在n次试验中，出现成功的次数的概率分布就是二项分布。  
+二项分布指的是N重伯努利实验，记为X ~ b(n,p)，E(x)=np,Var(x)=np(1-p)    
+
+**累计概率**
+pbinom(q,size,prob)：  返回至多成功x次的概率，即累积概率
+
+**密度函数**
+dbinom(x,size,prob)：  返回成功x次的概率
+
+**产生随机样本**
+rbinom(n, size, prob)：返回每组试验的成功次数
+
+**分位数**
+qbinom(p, size, prob)：返回每组试验的成功次数  
+(上侧)分位数：    
+若概率0<p<1，随机变量X或它的概率分布的分位数Za。是指满足条件p(X>Za)=α的实数。如t分布的分位数表，自由度f=20和α=0.05时的分位数为1.7247。  
+
+**参数**
+size：二项分布的试验次数n  
+prob：成功概率p  
+
+```{r}
+# 已知：假设我们玩捉泥鳅游戏，每次捉住的概率为0.1(p=0.1)，总共玩6次(size=6)。
+
+# 1.6次中有2次捉住泥鳅的概率有多大？这时就要用到dbinom(x, size, prob)函数，其中x参数指定成功的次数，函数返回相应概率，比如：
+
+size <- 6                     ##试验次数
+p <- 0.1                      ##成功概率
+
+dbinom(2, size, p)            ##成功捉住2次的概率
+
+dbinom(0:size, size, p)       ##整个概率分布
+
+sum(dbinom(0:size, size, p))  ##所有概率之和为1
+```
+```{r}
+# 2.6次中至多有3次捉住泥鳅的概率有多大？这时就要用到pbinom(q, size, prob)函数，其中q参数指定至多次数(这里是3)，函数返回相应累积概率，比如：
+
+pbinom(3, size, p)  ##至多成功捉住3次的概率
+
+```
+
+
+```{r}
+# 3.90%概率下我们至多能捉住多少次泥鳅？这时就要用到qbinom(p, size, prob)函数，其中p参数指定概率(这里是0.9)，函数返回相应分位点x(即F(x)≥0.9对应的最小x值)，比如：
+
+size <- 6
+p <- 0.1
+qbinom(0.9, size, p)
+# 计算结果显示，6次中90%概率下我们至多能捉住2次泥鳅
+```
+
+
+```{r}
+# 4.重复10000组，每组6次试验，每组捉住泥鳅的次数是多少？这时就要用到rbinom(n, size, prob)函数，其中n参数指定试验组数(这里为10000)，函数返回每组的成功次数，比如：
+
+set.seed(12)               ##设置随机数种子
+size <- 6                  ##每组试验次数
+p <- 0.1                   ##成功概率
+n <- 10000                 ##试验组数
+
+ns <- rbinom(n, size, p)   ##每组成功的次数
+table(ns)                  ##统计成功次数
+
+ 
+mean(ns)                   ##成功次数的平均值
+size*p                     ##理论值
+
+
+var(ns)                    ##成功次数的方差
+size*p*(1-p)               ##理论值
+
+```
+
+
+
+
+
+### 几何分布Geometric Distribution,geom
+
+n次伯努利试验，前n-1次皆失败，第n次才成功的机率
+
+**概率密度函数**
+dgeom(x, prob)：返回首次成功之前经历了x次失败的概率
+
+**生成正态分布的随机数**
+pgeom(q, prob)：返回累积概率
+
+**分布函数**
+rgeom(n, prob)：返回每组试验经历失败的次数返回相应分位点x，详情见下面的例子
+
+**分位数**
+qgeom(p, prob)：返回相应分位点x，详情见下面的例子
+
+**参数**
+prob：伯努利试验的成功概率p
+
+```{r}
+# 假设不停地掷骰子，直到得到点数6。投掷失败的次数k是随机分布的，取值范围是无穷集合{ 0, 1, 2, 3, ... }，并且是一个p=1/6的几何分布。
+
+#有时想知道，90%概率下我们至多要失败多少次就会成功？(即求F(x)≥0.9对应的最小x值)
+p <- 1/6
+qgeom(0.9, p)# 计算结果显示，90%概率下我们至多要失败12次就会成功
+```
+
+```{r}
+#重复10000组，每组成功前要失败多少次呢？
+
+set.seed(12)   ##设置随机数种子，使下面随机结果可重复
+p <- 1/6    ##成功概率
+n <- 10000  ##试验组数
+
+ns <- rgeom(n, p)   ##每组失败的次数
+ 
+mean(ns)  ##失败次数的平均值
+
+(1-p)/p   ##理论值
+```
+
+
+
+
+### 超几何分布Hypergeometric Distribution，hyper
+
+其自变量X定义为从N个有限物品中抽出n个物品，成功抽出指定种类的物品的个数。
+
+
+**产生随机样本**
+rhyper(nn, m, n, k)：返回每组抽中质量合格样本的个数
+
+**密度函数**
+dhyper(x, m, n, k, log = FALSE)：返回抽中x个质量合格样本的概率取出x个白球的概率
+
+**累计概率**
+phyper(q, m, n, k, lower.tail = TRUE, log.p = FALSE)：返回累积概率
+
+**分位数**
+qhyper(p, m, n, k, lower.tail = TRUE, log.p = FALSE)：返回相应分位点x
+
+参数解释：  
+
+m：质量合格数  
+n：质量不合格数  
+k：抽取数目  
+
+假设某服装店举行十一促销抽奖活动，抽奖箱中总共有30个乒乓球，其中只有3个乒乓球上写有“中奖”两字。结账时，每个顾客抽出2个乒乓球。如果抽中一个中奖字样，商品总价打7折；如果抽中两个，商品总价打5折；如果没抽中就不打折。  
+```{r}
+
+m <- 3     ##带有“中奖”字样乒乓球的数目
+n <- 30-m  ##没有带有“中奖”字样乒乓球的数目
+k <- 2     ##抽取的数目
+
+# 1.抽到0个，1个和2个带有“中奖”字样乒乓球的概率分别是多少？
+
+dhyper(0:2, m, n, k)
+# 从计算结果可知，无法中奖的概率竟然高达80.69%，而中奖的概率仅有19.31
+
+
+# 2.至多抽到1个带有“中奖”字样乒乓球的概率是多少？
+phyper(1, m, n, k)
+# 结果表明，至多抽到1个带有“中奖”字样乒乓球的概率高达99.3%
+
+
+# 3.90%概率下我们至多能抽到几个带有“中奖”字样乒乓球的概率是多少
+qhyper(0.9, m, n, k)
+# 结果表明，90%概率下我们至多能抽中1个
+
+
+# 4.重复10000组抽奖，每组抽中的个数是多少？
+set.seed(123)
+ns <- rhyper(10000, m, n, k)
+table(ns)
+# 模拟1万位顾客抽奖，高达8116位顾客没有中奖，与理论上80.69%不中奖很接
+```
+
+### 多项分布
+二项分布的试验结果只有两个(成功和失败)，而多项分布的试验结果则多于两个。如果试验的结果有三个，则是三项分布；如果结果有六个，则是六项分布。  
+
+
+**产生随机样本**
+rmultinom(n, size, prob)   
+抛10次骰子为一次实验，做1000次实验。则n=1000，size=10。   
+prob为每个独立结果出现的概率，其总和为1。   
+结果为k×n的矩阵，k即length(prob)  
+
+**密度函数** 
+dmultinom(x, size, prob)   
+
+x和prob是两个长度相等的向量。  
+
+```{r}
+# 某种化妆品在市场上共有4个品牌，我们从以往的销售数据可以知道它们的市场占有率分别为：10%,20%,50%,20%。可以近似认为消费者只买自己最喜欢的品牌。在商场中随机挑选10个消费者做调研，让每个人从这4个品牌中选一个自己最喜欢的品牌。那么选取各品牌的人数分别为1,2,4,3的概率有多大？
+
+dmultinom(c(1,2,4,3),prob=c(0.1,0.2,0.5,0.2))
+# 选取各品牌的人数分别为1,2,4,3的概率为0.0252
+```
+
+ 
+
+### 泊松分布 Poisson Distribution,pois
+
+如果稀有事件A在每个单元（设想为n次试验）内平均出现λ次，那么在一个单元（n次）的试验中，稀有事件A出现次数X=k的概率分布服从Poisson分布。  
+
+其中，参数λ是单位时间(或单位面积)内随机事件的平均发生率。  
+
+**产生随机样本**
+rpois(n, λ) ：返回每组发生随机事件的次数
+
+**密度函数**
+dpois(x, λ)：返回发生x次随机事件的概率
+
+**事件累计概率**
+ppois(q, λ)：返回累积概率
+
+**分位数**
+qpois(p, λ)：返回相应分位点x  
+ 
+**参数**
+λ：随机事件发生的平均次数
+
+
+```{r}
+
+# 根据历史数据，某条河(比如：长江)100年平均要发生一次洪水
+
+# 1.接下来的100年发生0次，1次和2次洪水的概率分别是多少呢？
+dpois(0:2, 1)
+
+# 2.至多发生1次洪水的概率是多少？
+ppois(1, 1)
+
+# 3.90%概率下这条河至多能发生几次洪水？
+qpois(0.9, 1)
+
+# 4.重复10000组模拟，每组发生洪水的次数是多少？
+set.seed(123)
+ns <- rpois(10000, 1)
+table(ns)
+```
+ 
+### 负二项分布 Negative binomial distribution，nbinom
+
+**定义**
+在一系列伯努利试验中，成功次数到达指定次数（记为r）时，失败次数（记为k）的离散概率分布
+
+
+
+**概率密度函数**
+dnbinom(x, size, prob)：返回发生x次失败事件的概率
+
+**生成正态分布的随机数**
+rnbinom(n, size, prob)：返回每组发生失败事件的次数
+
+**分布函数**
+pnbinom(q, size, prob)：返回累积概率
+
+**分位数**
+qnbinom(p, size, prob)：返回相应分位点x，详情见下面的例子
+
+**参数**
+size：成功次数r
+prob：成功概率p
+
+```{r}
+# 已知：某位运动员打算获得4个冠军后退役，假设每次比赛夺冠的概率为0.8
+
+
+# 1.在该运动员获得4个冠军前，发生0次，1次和2次失败的概率分别是
+dnbinom(0:2, 4, 0.8)
+
+# 2.至多发生2次失败的概率是多少？
+pnbinom(2, 4, 0.8)
+
+# 3.90%概率下该运动员至多失败几次？
+qnbinom(0.9, 4, 0.8)
+
+# 4.重复10万组模拟，每组失败的次数是多少？
+set.seed(123)
+ns <- rnbinom(100000, 4, 0.8)
+table(ns)
+
+```
+
+
+#########################################传说中的分割线#########################################
+
+
+
+## 连续型
+
+1.正态分布  
+2.指数分步  
+3.γ(伽玛)分布  
+4.weibull分布  
+5.F分布  
+6.T分布  
+7.β(贝塔)分布  
+8.χ²(卡方)分布  
+9.均匀分布  
+
+### 正态分布Normal Distribution，norm
+
+**定义**
+若随机变量X服从一个数学期望为μ、方差为σ^2的正态分布，记为N(μ，σ^2)。其概率密度函数为正态分布的期望值μ决定了其位置，其标准差σ决定了分布的幅度。因其曲线呈钟形，因此人们又经常称之为钟形曲线。我们通常所说的标准正态分布是μ = 0,σ = 1的正态分布。  
+
+**概率密度函数**
+dnorm(x,mean,sd),表示满足均值为mean，方差为sd正态分布的密度函数在x处的概率，若不指定mean和sd，则默认为标准正态分布；
+
+**生成正态分布的随机数**
+rnorm(n,mean,sd)表示生成n个均值为mean，方差为sd的正态分布的随机数；
+
+**分布函数**
+pnorm(q,mean,sd)表示均值为mean方差为sd的正态分布的累计密度函数在q处的值（累计概率）；
+
+**分位数**
+qnorm(q,mean,sd)计算给定累计概率p、均值为mean、标准差为sd时的分位数。
+
+
+**概率密度函数**
+```{r}
+set.seed(1)
+x <- seq(-5,5,length.out=100)# 建立一个包括1.75和5.25在内的等差数列，且数列长度为5
+y <- dnorm(x,0,1)
+
+plot(x,y,col="red",xlim=c(-5,5),ylim=c(0,1),type='l',
+     xaxs="i", yaxs="i",ylab='density',xlab='',
+     main="The Normal Density Distribution")
+
+lines(x,dnorm(x,0,0.5),col="green")
+lines(x,dnorm(x,0,2),col="blue")
+lines(x,dnorm(x,-2,1),col="orange")
+
+legend("topright",legend=paste("m=",c(0,0,0,-2)," sd=", c(1,0.5,2,1)), lwd=1, col=c("red", "green","blue","orange"))
+
+```
+
+**累计分布函数**
+```{r}
+set.seed(1)
+x <- seq(-5,5,length.out=100)
+y <- pnorm(x,0,1)
+
+plot(x,y,col="red",xlim=c(-5,5),ylim=c(0,1),type='l',
+     xaxs="i", yaxs="i",ylab='density',xlab='',
+     main="The Normal Cumulative Distribution")
+
+lines(x,pnorm(x,0,0.5),col="green")
+lines(x,pnorm(x,0,2),col="blue")
+lines(x,pnorm(x,-2,1),col="orange")
+
+legend("bottomright",legend=paste("m=",c(0,0,0,-2)," sd=", c(1,0.5,2,1)), lwd=1,col=c("red", "green","blue","orange"))
+
+```
+
+### 指数分布Exponential Distribution，exp
+
+**定义**
+指数分布是事件的时间间隔的概率，比如旅客进入机场的时间间隔、打进客服中心电话的时间间隔、中文维基百科新条目出现的时间间隔等等。
+
+**常用函数**
+密度函数：dexp(x, rate = 1, log = FALSE)
+分布函数：pexp(q, rate = 1, lower.tail = TRUE, log.p = FALSE)
+求分位数：qexp(p, rate = 1, lower.tail = TRUE, log.p = FALSE)
+生成随机数：rexp(n, rate = 1)
+
+**概率密度函数**
+```{r}
+set.seed(1)
+x<-seq(-1,2,length.out=100)
+y<-dexp(x,0.5)
+
+plot(x,y,col="red",xlim=c(0,2),ylim=c(0,5),type='l',
+     xaxs="i", yaxs="i",ylab='density',xlab='',
+     main="The Exponential Density Distribution")
+lines(x,dexp(x,1),col="green")
+lines(x,dexp(x,2),col="blue")
+lines(x,dexp(x,5),col="orange")
+
+legend("topright",legend=paste("rate=",c(.5, 1, 2,5)), lwd=1,col=c("red", "green","blue","orange"))
+
+```
+
+**累计分布函数**
+
+```{r}
+set.seed(1)
+x<-seq(-1,2,length.out=100)
+y<-pexp(x,0.5)
+
+plot(x,y,col="red",xlim=c(0,2),ylim=c(0,1),type='l',
+     xaxs="i", yaxs="i",ylab='density',xlab='',
+     main="The Exponential Cumulative Distribution Function")
+lines(x,pexp(x,1),col="green")
+lines(x,pexp(x,2),col="blue")
+lines(x,pexp(x,5),col="orange")
+
+legend("bottomright",legend=paste("rate=",c(.5, 1, 2,5)), lwd=1, col=c("red", "green","blue","orange"))
+```
+
+
+ 
+
+### 伽玛分布Gamma Distribution，gamma
+
+**定义**
+伽玛分布(Gamma)是著名的皮尔逊概率分布函数簇中的重要一员，称为皮尔逊Ⅲ型分布。它的曲线有一个峰，但左右不对称。伽玛分布中的参数α，称为形状参数，β称为尺度参数。 
+
+**概率密度函数**
+```{r}
+set.seed(1)
+x<-seq(0,10,length.out=100)
+y<-dgamma(x,1,2)
+
+plot(x,y,col="red",xlim=c(0,10),ylim=c(0,2),type='l',
+     xaxs="i", yaxs="i",ylab='density',xlab='',
+     main="The Gamma Density Distribution")
+
+lines(x,dgamma(x,2,2),col="green")
+lines(x,dgamma(x,3,2),col="blue")
+lines(x,dgamma(x,5,1),col="orange")
+lines(x,dgamma(x,9,1),col="black")
+
+legend("topright",legend=paste("shape=",c(1,2,3,5,9)," rate=", c(2,2,2,1,1)), lwd=1, col=c("red", "green","blue","orange","black"))
+```
+
+**累计分布函数**
+```{r}
+set.seed(1)
+x<-seq(0,10,length.out=100)
+y<-pgamma(x,1,2)
+
+plot(x,y,col="red",xlim=c(0,10),ylim=c(0,1),type='l',
+     xaxs="i", yaxs="i",ylab='density',xlab='',
+     main="The Gamma Cumulative Distribution Function")
+
+lines(x,pgamma(x,2,2),col="green")
+lines(x,pgamma(x,3,2),col="blue")
+lines(x,pgamma(x,5,1),col="orange")
+lines(x,pgamma(x,9,1),col="black")
+
+legend("bottomright",legend=paste("shape=",c(1,2,3,5,9)," rate=", c(2,2,2,1,1)), lwd=1, col=c("red", "green","blue","orange","black"))
+```
+
+### 韦伯分布（Weibull distribution）
+
+**定义**
+又称韦氏分布或威布尔分布，是可靠性分析和寿命检验的理论基础。Weibull分布能被应用于很多形式，分布由形状、尺度（范围）和位置三个参数决定。其中形状参数是最重要的参数，决定分布密度曲线的基本形状，尺度参数起放大或缩小曲线的作用，但不影响分布的形状。
+
+**R语言中常用函数**
+密度函数：dweibull(x, shape, scale = 1, log = FALSE)
+分布函数：pweibull(q, shape, scale = 1, lower.tail = TRUE, log.p = FALSE)
+求分位数：qweibull(p, shape, scale = 1, lower.tail = TRUE, log.p = FALSE)
+生成随机数：rweibull(n, shape, scale = 1)
+
+**概率密度函数**
+```{r}
+set.seed(1)
+x<- seq(0, 2.5, length.out=1000)
+y<- dweibull(x, 0.5)
+
+plot(x, y, type="l", col="blue",xlim=c(0, 2.5),ylim=c(0, 6),
+     xaxs="i", yaxs="i",ylab='density',xlab='',
+     main="The Weibull Density Distribution")
+
+lines(x, dweibull(x, 1), type="l", col="red")
+lines(x, dweibull(x, 1.5), type="l", col="magenta")
+lines(x, dweibull(x, 5), type="l", col="green")
+lines(x, dweibull(x, 15), type="l", col="purple")
+legend("topright", legend=paste("shape =", c(.5, 1, 1.5, 5, 15)), lwd=1,col=c("blue", "red", "magenta", "green","purple"))
+```
+
+
+**累计密度函数**
+```{r}
+set.seed(1)
+x<- seq(0, 2.5, length.out=1000)
+y<- pweibull(x, 0.5)
+
+plot(x, y, type="l", col="blue",xlim=c(0, 2.5),ylim=c(0, 1.2),
+     xaxs="i", yaxs="i",ylab='density',xlab='',
+     main="The Weibull Cumulative Distribution Function")
+
+lines(x, pweibull(x, 1), type="l", col="red")
+lines(x, pweibull(x, 1.5), type="l", col="magenta")
+lines(x, pweibull(x, 5), type="l", col="green")
+lines(x, pweibull(x, 15), type="l", col="purple")
+legend("bottomright", legend=paste("shape =", c(.5, 1, 1.5, 5, 15)), lwd=1, col=c("blue", "red", "magenta", "green","purple"))
+```
+
+
+
+### F分布
+
+**定义**
+F-分布（F-distribution）是一种连续概率分布，被广泛应用于似然比率检验，特别是ANOVA中。F分布定义为：设X、Y为两个独立的随机变量，X服从自由度为k1的卡方分布，Y服从自由度为k2的卡方分布，这2 个独立的卡方分布被各自的自由度除以后的比率这一统计量的分布。即： 上式F服从第一自由度为k1，第二自由度为k2的F分布。
+
+**常用函数**
+密度函数：df(x, df1, df2, ncp, log = FALSE)
+分布函数：pf(q, df1, df2, ncp, lower.tail = TRUE, log.p = FALSE)
+求分位数：qf(p, df1, df2, ncp, lower.tail = TRUE, log.p = FALSE)
+生成随机数：rf(n, df1, df2, ncp)
+
+df1，df2是两个自由度，ncp同t分布中的ncp。
+
+**概率密度函数**
+```{r}
+set.seed(1)
+x<-seq(0,5,length.out=1000)
+y<-df(x,1,1,0)
+
+plot(x,y,col="red",xlim=c(0,5),ylim=c(0,1),type='l',
+     xaxs="i", yaxs="i",ylab='density',xlab='',
+     main="The F Density Distribution")
+
+lines(x,df(x,1,1,2),col="green")
+lines(x,df(x,2,2,2),col="blue")
+lines(x,df(x,2,4,4),col="orange")
+
+legend("topright",legend=paste("df1=",c(1,1,2,2),"df2=",c(1,1,2,4)," ncp=", c(0,2,2,4)), lwd=1, col=c("red", "green","blue","orange"))
+```
+
+
+**累计密度函数**
+```{r}
+set.seed(1)
+x<-seq(0,5,length.out=1000)
+y<-df(x,1,1,0)
+
+plot(x,y,col="red",xlim=c(0,5),ylim=c(0,1),type='l',
+     xaxs="i", yaxs="i",ylab='density',xlab='',
+     main="The F Cumulative Distribution Function")
+
+lines(x,pf(x,1,1,2),col="green")
+lines(x,pf(x,2,2,2),col="blue")
+lines(x,pf(x,2,4,4),col="orange")
+
+legend("topright",legend=paste("df1=",c(1,1,2,2),"df2=",c(1,1,2,4)," ncp=", c(0,2,2,4)), lwd=1, col=c("red", "green","blue","orange"))
+```
+
+
+
+
+### t分布
+
+**定义**
+学生t-分布（Student’s t-distribution），可简称为t分布。应用在估计呈正态分布的母群体之平均数。它是对两个样本均值差异进行显著性测试的学生t检定的基础。学生t检定改进了Z检定（Z-test），因为Z检定以母体标准差已知为前提。虽然在样本数量大（超过30个）时，可以应用Z检定来求得近似值，但Z检定用在小样本会产生很大的误差，因此必须改用学生t检定以求准确。
+
+在母体标准差未知的情况下，不论样本数量大或小皆可应用学生t检定。在待比较的数据有三组以上时，因为误差无法压低，此时可以用变异数分析（ANOVA）代替学生t检定。
+
+
+**常用函数**
+密度函数：dt(x, df, ncp, log = FALSE)
+分布函数：pt(q, df, ncp, lower.tail = TRUE, log.p = FALSE)
+求分位数：qt(p, df, ncp, lower.tail = TRUE, log.p = FALSE)
+生成随机数：rt(n, df, ncp)
+
+
+**概率密度函数**
+```{r}
+set.seed(1)
+x<-seq(-5,5,length.out=1000)
+y<-dt(x,1,0)
+
+plot(x,y,col="red",xlim=c(-5,5),ylim=c(0,0.5),type='l',
+     xaxs="i", yaxs="i",ylab='density',xlab='',
+     main="The T Density Distribution")
+
+lines(x,dt(x,5,0),col="green")
+lines(x,dt(x,5,2),col="blue")
+lines(x,dt(x,50,4),col="orange")
+
+legend("topleft",legend=paste("df=",c(1,5,5,50)," ncp=", c(0,0,2,4)), lwd=1, col=c("red", "green","blue","orange"))
+```
+
+
+**累计密度函数**
+```{r}
+set.seed(1)
+x<-seq(-5,5,length.out=1000)
+y<-pt(x,1,0)
+
+plot(x,y,col="red",xlim=c(-5,5),ylim=c(0,0.5),type='l',
+     xaxs="i", yaxs="i",ylab='density',xlab='',
+     main="The T Cumulative Distribution Function")
+
+lines(x,pt(x,5,0),col="green")
+lines(x,pt(x,5,2),col="blue")
+lines(x,pt(x,50,4),col="orange")
+
+legend("topleft",legend=paste("df=",c(1,5,5,50)," ncp=", c(0,0,2,4)), lwd=1, col=c("red", "green","blue","orange"))
+```
+
+
+
+### $\beta$(贝塔Beta)分布
+
+**定义**
+贝塔分布(Beta Distribution)是指一组定义在(0,1)区间的连续概率分布，Beta分布有α和β两个参数α,β>0，其中α为成功次数加1，β为失败次数加1。
+
+Beta分布的一个重要应该是作为伯努利分布和二项式分布的共轭先验分布出现，在机器学习和数理统计学中有重要应用。贝塔分布中的参数可以理解为伪计数，伯努利分布的似然函数可以表示为，表示一次事件发生的概率，它为贝塔有相同的形式，因此可以用贝塔分布作为其先验分布。
+
+
+**常用函数**
+密度函数：dbeta(x, shape1, shape2, ncp = 0, log = FALSE)
+分布函数：pbeta(q, shape1, shape2, ncp = 0, lower.tail = TRUE, log.p = FALSE)
+求分位数：qbeta(p, shape1, shape2, ncp = 0, lower.tail = TRUE, log.p = FALSE)
+生成随机数：rbeta(n, shape1, shape2, ncp = 0)
+
+shape1，shape2是beta分布的两个参数。E(x)=s1/(s1+s2),var(x)=s1*s2/(s1+s2)^2 * (s1+s2+1)
+
+**概率密度函数**
+```{r}
+set.seed(1)
+x<-seq(-5,5,length.out=10000)
+y<-dbeta(x,0.5,0.5)
+
+plot(x,y,col="red",xlim=c(0,1),ylim=c(0,6),type='l',
+     xaxs="i", yaxs="i",ylab='density',xlab='',
+     main="The Beta Density Distribution")
+
+lines(x,dbeta(x,5,1),col="green")
+lines(x,dbeta(x,1,3),col="blue")
+lines(x,dbeta(x,2,2),col="orange")
+lines(x,dbeta(x,2,5),col="black")
+
+legend("top",legend=paste("a=",c(.5,5,1,2,2)," b=", c(.5,1,3,2,5)), lwd=1,col=c("red", "green","blue","orange","black"))
+```
+
+
+
+
+**累计密度函数**
+```{r}
+set.seed(1)
+x<-seq(-5,5,length.out=10000)
+y<-pbeta(x,0.5,0.5)
+
+plot(x,y,col="red",xlim=c(0,1),ylim=c(0,1),type='l',
+     xaxs="i", yaxs="i",ylab='density',xlab='',
+     main="The Beta Cumulative Distribution Function")
+
+lines(x,pbeta(x,5,1),col="green")
+lines(x,pbeta(x,1,3),col="blue")
+lines(x,pbeta(x,2,2),col="orange")
+lines(x,pbeta(x,2,5),col="black")
+
+legend("topleft",legend=paste("a=",c(.5,5,1,2,2)," b=", c(.5,1,3,2,5)), lwd=1,col=c("red", "green","blue","orange","black"))
+```
+
+### $\chi^2$(卡方)分布
+
+**定义**
+若n个相互独立的随机变量ξ₁、ξ₂、……、ξn ，均服从标准正态分布（也称独立同分布于标准正态分布），则这n个服从标准正态分布的随机变量的平方和构成一新的随机变量，其分布规律称为χ²分布（chi-square distribution）。其中参数n称为自由度，自由度不同就是另一个χ²分布，正如正态分布中均值或方差不同就是另一个正态分布一样。
+
+
+**概率密度函数**
+```{r}
+set.seed(1)
+x<-seq(0,10,length.out=1000)
+y<-dchisq(x,1)
+
+plot(x,y,col="red",xlim=c(0,5),ylim=c(0,2),type='l',
+     xaxs="i", yaxs="i",ylab='density',xlab='',
+     main="The Chisq Density Distribution")
+
+lines(x,dchisq(x,2),col="green")
+lines(x,dchisq(x,3),col="blue")
+lines(x,dchisq(x,10),col="orange")
+
+legend("topright",legend=paste("df=",c(1,2,3,10)), lwd=1, col=c("red", "green","blue","orange"))
+```
+
+
+**累计密度函数**
+```{r}
+set.seed(1)
+x<-seq(0,10,length.out=1000)
+y<-pchisq(x,1)
+
+plot(x,y,col="red",xlim=c(0,10),ylim=c(0,1),type='l',
+     xaxs="i", yaxs="i",ylab='density',xlab='',
+     main="The Chisq Cumulative Distribution Function")
+
+lines(x,pchisq(x,2),col="green")
+lines(x,pchisq(x,3),col="blue")
+lines(x,pchisq(x,10),col="orange")
+
+legend("topleft",legend=paste("df=",c(1,2,3,10)), lwd=1, col=c("red", "green","blue","orange"))
+```
+
+
+### 均匀分布 Uniform Distribution，unif
+
+**定义**
+均匀分布(Uniform distribution)是均匀的，不偏差的一种简单的概率分布，分为：离散型均匀分布与连续型均匀分布。
+
+**概率密度函数**
+```{r}
+set.seed(1)
+x<-seq(0,10,length.out=1000)
+y<-dunif(x,0,1)
+
+plot(x,y,col="red",xlim=c(0,10),ylim=c(0,1.2),type='l',
+     xaxs="i", yaxs="i",ylab='density',xlab='',
+     main="The Uniform Density Distribution")
+lines(x,dnorm(x,0,0.5),col="green")
+lines(x,dnorm(x,0,2),col="blue")
+lines(x,dnorm(x,-2,1),col="orange")
+lines(x,dnorm(x,4,2),col="purple")
+
+legend("topright",legend=paste("m=",c(0,0,0,-2,4)," sd=", c(1,0.5,2,1,2)), lwd=1, col=c("red", "green","blue","orange","purple"))
+```
+
+
+**累计密度函数**
+```{r}
+set.seed(1)
+x<-seq(0,10,length.out=1000)
+y<-punif(x,0,1)
+
+plot(x,y,col="red",xlim=c(0,10),ylim=c(0,1.2),type='l',
+     xaxs="i", yaxs="i",ylab='density',xlab='',
+     main="The Uniform Cumulative Distribution Function")
+
+lines(x,punif(x,0,0.5),col="green")
+lines(x,punif(x,0,2),col="blue")
+lines(x,punif(x,-2,1),col="orange")
+
+legend("bottomright",legend=paste("m=",c(0,0,0,-2)," sd=", c(1,0.5,2,1)), lwd=1, col=c("red", "green","blue","orange","purple"))
+```
+
+
+写在最后
+
+**以上内容参考了以下链接：**   
+https://www.jianshu.com/p/d60252dfb8ec   
+https://blog.csdn.net/hsdcc217/article/details/78249633   
+
+# 线性模型
+
+**刘冰婷、张雨露**   
+
+## logLik 
+对数似然函数，常用来表示由极大似然拟合的模型。
+调用示例如下：
+```{r}
+loglike = function(data, mu, sigma)  ###mu表示总体平均值的任意估计值，sigma为总体标准差的任意估计值
+{
+loglike = 0
+for(obs in data){
+loglike = loglike +log(1/(sqrt(2*pi)*sigma) *exp(-1/2 * (obs - mu)^2/(sigma^2)))
+}
+return(loglike)
+}
+###比如令mu=120，sigma=20
+diams = c(150, 124, 100, 107, 170, 144,
+113, 108, 92, 129, 123, 118) 
+loglike(diams, 120,20)
+
+```
+
+## df
+自由度，Degrees of freedom
+沿用上面的例子：
+```{r}
+diams = c(150, 124, 100, 107, 170, 144,
+113, 108, 92, 129, 123, 118) 
+library(nlme)
+m1 = gls(diams ~ 1, method='ML')
+summary(m1)
+```
+也可以直接调用，例如卡方检验中：
+```{r}
+library(pwr)
+# pwr.chisq.test(w=, N=, df=, sig.level=, power= )
+###w是效应值，N是总样本大小，df是自由度，sig.level是显著性水平，power是功效水平
+```
+
+## deviance
+拟合模型对象的偏差，是广义线性模型拟合优度的度量
+随机对照试验：
+```{r}
+counts <- c(18,17,15,20,10,20,25,13,12)
+outcome <- gl(3,1,9)
+treatment <- gl(3,3)
+print(d.AD <- data.frame(treatment, outcome, counts))
+glm.D93 <- glm(counts ~ outcome + treatment, family = poisson())
+anova(glm.D93)
+summary(glm.D93)
+```
+
+
+## formula
+公式，可指定要展示的变量和条件变量
+例如绘图时：
+```{r}
+# graph_function(formula,data= ,options)
+```
+
+## ~
+分隔符号，左边为响应变量，右边为解释变量
+例如，用A、B和C预测y：
+```{r}
+y~ A + B + C
+```
+
+## I
+在函数公式里，它被用来禁止将“+”、“-”、“*”和“^”等运算符解释为公式运算符,它们被用作算术运算符
+例如，在下面这个公式里，b+c被解释为b和c的和：
+```{r}
+y ~ a + I(b+c)
+```
+
+##anova
+作用是进行方差分析
+aov()函数的语法为aov(formula, data = data.frame)
+
+其中：formula表示不同方差分析的表达式：
+      1）单因素ANOVA：y ~ A 
+      2）含单个协变量的单因素ANCOVA：y ~ x + A 
+      3）双因素ANOVA：y ~ A * B 
+      4）含两个协变量的双因素ANCOVA：y ~ x1 + x2 + A*B 
+      5）随机化区组：y ~ B + A（B是区组因子） 
+      6）单因素组内ANOVA：y ~ A + Error(Subject/A) 
+      7）含单个组内因子（W）和单个组间因子（B）的重复测量ANOVA：y ~ B * W + Error(Subject/W) 
+注：~为分隔符号，符号左边为响应变量，右边为解释变量。例如，用A、B和C预测y，代码为y~ A + B + C 
+
+
+以江西和广东各5名20岁女性的体重为例，判断两地20岁女性在体重方面是否有差异。
+```{r}
+X<-c(95,98,90,100,93,107,99,111,121,106)
+A<-factor(rep(1:2,each=5))
+weight<-data.frame(X,A)
+weight
+fit<-aov(X~A,data=weight)
+summary(fit)
+```
+
+
+
+##coef
+
+作用是列出拟合模型的模型参数（截距项和斜率）
+```{r}
+coef(fit)
+```
+
+
+
+##confint
+作用是提供模型参数的置信区间
+
+confint()函数的语法是confint(object, parm, level = , ...)
+其中：object指模型对象
+      parm指选择哪些参数的置信区间
+      level指置信水平
+
+```{r}
+confint(fit,level = 0.9)
+```
+
+
+##vcov
+作用是列出模型参数的协方差矩阵
+
+```{r}
+vcov(fit)
+```
+
+
+
+##contrasts
+当在线性模型中将因子拟合为解释变量时，需要进行对比。
+
+```{r}
+contrasts(A,contrasts = TRUE,sparse = FALSE)
+```
+
+
+
+# 日期时间
+**彭芳、邹昕蕾**   
+
++ ISOdate, ISOdatetime, strftime, strptime, date
+
+ISOdate()函数：生成时间
+```{r}
+ISOdate(2018,4,21,15,21,52)
+```
+
+ISOdatetime()函数:把数字转化为日期时间
+```{r}
+# ISOdatetime(2019, 4, 8,11, 50, 22,tz = "")
+# ISOdate(year, month, day, hour = 12, min = 0, sec = 0, tz = "GMT")
+```
+
+strftime()函数：是一种计算机函数，根据区域设置格式化本地时间/日期，本质上是字符串格式化函数。
+strftime()函数灵活一些，能直接处理代表日期时间的字符串；将时间格式化，或者说格式化一个时间字符串，即按照一定格式把时间显示成所需要的效果。
+
+```{r}
+strftime("2010-10-10", format = "%A")
+strftime("2010-10-30 01:02:03", format = "%c")
+```
+把自己所需要的时间按照年/月/日或者时/分/秒等想要的格式输出。
+
+strptime()函数:转换字符串为时间，输出日期
+strptime()函数按照特定时间格式将字符串转换（解析）为时间类型。简而言之，就是将一段给定的日期或时间字符串转换成一个对象输出。
+```{r}
+strptime("9-4-2019-13-23-34", format = "%d-%m-%Y-%H-%M-%S")
+```
+
+strptim()函数之后的时间可以直接做减法，因为strptime函数将字符型时间转化为"POSIXlt"和"POSIXct"格式了。
+```{r}
+strptime("2006-01-08 10:07:52", "%Y-%m-%d")-strptime("2006-01-15 10:07:52", "%Y-%m-%d")
+class(strptime("2006-01-08 10:07:52", "%Y-%m-%d"))
+```
+
+【注】strftime与strptime的区别：
+strftime是按照想要的格式转换为特定格式输出，重点是格式。
+strptime是将一个（时间）字符串解析为时间的一个类型对象。即不管什么格式，只要把特定的时间字符串转成时间类型即可。
+
+
+date()函数：返回当前日期和时间
+```{r}
+date()
+d <- date()
+nchar(d)
+```
+
+
++ difftime 
+
+该函数可以计算时差、计算时间间隔，并以星期、天、时、分、秒来表示。不同格式的时间都可以进行运算，并且可以实现的是计算两个时间间隔：秒、分钟、小时、天、星期，但是不能计算年、月、季度的时间差。
+
+```{r}
+s <- as.Date("2019-4-5 10:30:00") 
+difftime(as.Date("2019-4-8 10:30:00"), s, units="hours") 
+```
+
+```{r}
+s <- as.Date('2016-2-19') 
+difftime(as.Date('2017-2-16'), s,units = 'weeks')
+```
+
+
++ julian, months, quarters, weekdays      
+
+julian()计算日期之差，没有设置初始日期时，默认是1970-1-1   
+months()取日期对象的月份   
+quarters()取日期对象的季度    
+weekdays()取日期对象所处的周几
+
+```{r}
+x <- as.POSIXct("2019-4-8 10:29:59")
+julian(x,origin=as.Date("2019-4-4 10:29:59"))
+julian(x)
+months(x)
+quarters(x)
+weekdays(x)
+```
+
+
++ library(lubridate)
+
+安装lubridate包，用来处理时间数据。lubridate包主要有两类函数，一类是处理时点数据（time instants），另一类是处理时段数据（time spans）。
+
+时点类函数
+从字符型数据解析时间，会自动识别各种分隔符
+
+```{r}
+library(lubridate)
+x <- ymd('2010-4-8')
+yday(x) #观察x日期是一年中的第几天
+month(x) <- 5 #修改x日期中的月份为5月
+```
+
+时段类函数
+从两个时点生成一个interval时段数据
+
+```{r}
+library(lubridate) 
+y <- new_interval(x,now())
+ as.duration(y) #从interval格式转为duration格式
+```
+
+
+# 基础数学
+**段雨洋、刘皓昀**   
+
+
+```{r}
+dyy<-c(90,95,88,97,87,85,92)
+##求和
+sum(dyy) 
+##最大值
+max(dyy)
+##最小值
+min(dyy) 
+##均值
+mean(dyy) 
+```
+
+
+```{r}
+ x<-100
+#对数（底为10）函数 
+log10(x)
+#对数（底为2）函数
+log2(x)
+#对数函数
+log(x)
+#2.71812
+exp(x)
+#开平方函数
+sqrt(x)
+```
+
+
+```{r}
+y<-3.1415926
+#返回大于或等于所给数字表达式的最小整数
+ceiling(y)
+#返回小于或等于所 给数字表达式的最大整数 
+floor(y)
+# 截取整数部分
+round(y)
+#四舍五入 
+trunc(y)
+#数据截取函数 x：有效位 a：到a位为止  
+signif(y,4)
+```
+```{r}
+#二维线画图函数
+x<-c(10,30)
+ y<-c(30,50)
+ plot(x,y,'l')
+ 
+```
+
+
+# 字符处理
+**邵帅、陈政阳**   
+
++ grep, agrep
+
+grep
+
+  返回匹配下标
+
+  grep(pattern, x, ignore.case = FALSE, perl = FALSE, value = FALSE,
+       fixed = FALSE, useBytes = FALSE, invert = FALSE)
+
+```{r}
+str <- c("Now is","the"," time ")
+grep(" +", str)
+```
+
+agrep
+
+  使用Levenshtein编辑距离进行字符串近似匹配
+  
+  Levenshtein编辑距离指的是两个字符串之间，由一个转换成另一个所需的最少编辑操作次数。
+  编辑操作包括将一个字符替换成另一个字符，插入一个字符，删除一个字符
+  
+
+  agrep(pattern, x, max.distance = 0.1,costs = NULL, ignore.case = FALSE,
+        value = FALSE,fixed = TRUE,useBytes = FALSE)
+```{r}
+agrep("1 lasy 2", "1 lazy 2",max = 1)
+```
++ gsub
+  
+  替换全部匹配的字符串
+
+  gsub(pattern, replacement, x, ignore.case = FALSE, perl = FALSE,
+       fixed = FALSE, useBytes = FALSE)
+```{r}
+str<-c("Now is ","the"," time ")
+gsub(" +", "", str)
+```
++ strsplit
+
+  基于split子句分割字符向量x
+  
+  strsplit(x, split, fixed = FALSE, perl = FALSE, useBytes = FALSE)
+  
+  fixed为TRUE的话，完全匹配split；否则，基于正则表达式。可以使用split=NULL来分割每个   字符。
+```{r}
+strsplit("Hello world!", NULL)
+```
++ chartr
+  
+  将x中的字符old变换为字符new
+  
+  chartr(old, new, x)
+  
+```{r}
+chartr("a-z","A-Z","Hello world!")
+```
++ nchar
+
+  返回字符串长度
+  
+  nchar(x, type = "chars", allowNA = FALSE, keepNA = NA)
+```{r}
+?nchar
+x <- c("hello","world","!",NA) 
+nchar(x,keepNA = FALSE)
+```
++ tolower, toupper
+  
+  字符串的小写转换和大写转换
+  
+  tolower(x)
+  toupper(x)
+```{r}
+tolower("Hello World!")
+toupper("Hello World!")
+```
++ substr
+
+  提取或者替换字符串
+  
+  substr(x, start, stop)
+```{r}
+x<-"Hello World"
+
+substr("Hello World",7,11)
+
+substr(x, 7,11) <- c("Kitty")
+x
+```
++ paste
+  
+  转换成字符，然后拼接
+
+  paste (..., sep = " ", collapse = NULL)
+```{r}
+paste(c("Hello","World","!"),collapse = "-")
+paste("Hello","World","!")
+paste("Hello","World","!",sep = "-")
+
+```
++ trimws
+  
+  去掉字符串头/尾的空格。
+
+  trimws(x, which = c("both", "left", "right"))
+```{r}
+x <- "  Hello World! "
+x
+trimws(x)
+trimws(x, "l")
+trimws(x, "r")
+```
++ library(stringr)
+
+  字符串处理包,相比与R语言本身的字符处理函数，stringr包里的更加丰富完整，而且易于记   忆
+  
+```{r}
+library(stringr)
+help("stringr")
+str_trim(" Hello world  ")
+```
+
+
+# 数组处理
+**孙远**   
+数组（array）与矩阵类似，但是维度可以大于2.数组可通过array函数创建，形式如下：
+             myarray <- array(vector, dimensions, dimnames)
+其中vector包含了数组中的数据，dimensions是一个数值型向量，给出了各个维度下标的最大值，而dimnames是可选的、各维度名称标签的列表。
+下面给出了一个创建三维（2*3*4）数值型数组的示例。
+
+```{r}
+dim1 <- c("A1", "A2")
+dim2 <- c("B1", "B2", "B3")
+dim3 <- c("C1", "C2", "C3", "C4")
+z <- array(1:24, c(2, 3, 4),dimnames=list(dim1, dim2, dim3))
+z
+```
+
+## dim
+
+dim函数可以显示对象的维度。示例如下：
+
+```{r}
+x1 <- c(10, 20, 30)
+x2 <- c(20, 30, 15)
+x <- data.frame(x1, x2)
+dim(x)
+```
+
+通过dim(x)显示出了数据框x的维度
+
+还可通过dim函数重新设置对象的维度。示例如下：
+
+```{r}
+y <- c(1:6)
+dim(y) <- c(2,3)
+y
+```
+通过dim函数将向量转化为了数组。
+
+## dimnames
+
+dimnames函数可用于给对象的维度命名或重新设置对象的名称，例如给矩阵、数组和数据框的行列命名。
+示例如下：
+
+```{r}
+t <- matrix(1:6, ncol=2, dimnames=list(c("one", "two", "three"),c("First", "Second")), byrow=TRUE)
+t
+```
+
+## aperm
+
+aperm函数可以进行维度转换。示例如下：
+
+```{r}
+a <- array(1:24, 2:4)
+b <- aperm(a, c(2,1,3))
+dim(a)
+dim(b)
+```
+
+## library(abind)
+
+library函数用于加载包，library(abind)即加载名字为abind的包。
+
+```{r}
+# install.packages("abind")
+library(abind)
+help(abind)
+```
+
+如上所示，我们实现了安装和加载abind包的操作，并通过打开帮助文档了解了abind的相关信息。
+abind包主要用于结合多维数组。它是cbind和rbind的一般化，利用abind包，我们可以获取向量、矩阵或数组的序列，并生成具有相同或更高维度的单个数组。
+
+
+# 因子
+**汤丹 朱燕青 熊欣蔚 朱永辉**   
+```{r}
+#levels:构建有序因子，通过levels指定factor的顺序
+sex <- factor(c('f','m','f','f','m'),levels=c('m','f'))
+sex
+sex <- factor(c('f','m','f','f','m'))
+sex
+
+```
+
+factor:用于储存数据类别的一种类型
+第一种为指定顺序，第二种为默认顺序
+levels:构建有序因子，通过levels指定factor的顺序
+```{r}
+#nlevels
+nlevels(sex)
+nlevels(factor(c('a','b','c')))
+```
+
+ nlevels可以用来查询factor中levels的长度
+
+```{r }
+#reorder
+x1=factor(c("a","a","a","a","b","b","b","c","c","c","c","c"))
+x1
+x2=c(3,5,2,2,5,6,23,2,4,53,3,4)
+length(x2)
+reorder(x1,x2,median)
+reorder(x1,x2,sum)
+
+```
+reorder(x, X, FUN = mean,order = is.ordered(x))
+第一个参数选定了x1作为排序数据；第二个参数选定了x2作为排序参考对象，参照x2的数值大小，可以理解为赋值（虽然不是）；第三个参数对x2运用函数处理，得到的结果排序；第一串代码是根据x2的中位数排序，第二串是根据x2的加总排序。依据从小到大的顺序。
+
+
+
+```{r}
+#relevel()
+w=factor(c("甲","丙","乙"))
+w
+t=relevel(w,"乙")
+relevel(t,"甲")
+
+```
+relevel(x, ref, ...)
+level()：重新排序，主要针对无序因子
+re第一个参数选定待处理数据，第二个是将因子中的某一级别提到最前面，也就是改为最低级别
+```{r}
+#cut()
+ w=c(1:10)
+ cut(w,breaks=c(0,3,6,8,11),labels=c("A","B","C","D"))
+
+```
+
+cut(x, breaks, labels = NULL, include.lowest = FALSE, right = TRUE, dig.lab = 3,ordered_result = FALSE, ...)
+将x进行区间划分，贴上不同的标签；
+ 第一个参数x表示待处理数据，第二个参数break表示切割点如果是数值向量表示切割点，如果是单个数字，则表示切割后每一段的长度；label表示每一段的定义名称；include.lowest表示是个左开区间，right表示分割点在左侧；ordered_result=FALSE询问结果是否是有序因子。
+```{r}
+#findInterval()
+x=-3:18
+v=c(0,5,10,15)
+findInterval(x,v)
+
+```
+findInterval是将函数进行分段处理
+findInterval(x, vec, rightmost.closed = FALSE, all.inside = FALSE, left.open = FALSE)
+按照vec的规则，将x进行分段。x是待处理数据，vec是分段规则，rightmost.closed是最右边是闭区间，一般默认开区间；left.open左侧是否是开区间，一般默认不是开区间。
+这串代码，将x分为了（负无穷大，0),[0,5),[5,10),[10,15),[15,正无穷大）x中3个在（负无穷大，0)，记作0，5个在[0,5)记作1....
+cut和findinterval均用来切割生成分段数据
+```{r}
+#interaction
+a=gl(2,6,labels=c("甲","乙"))
+b=gl(3,2,12,labels=c("高","中","低"))
+interaction(a,b,sep=":",lex.order=T)
+
+```
+interaction用于研究交互作用的函数，用于生成交互作用的因子
+interaction(..., drop = FALSE, sep = ".", lex.order = FALSE)
+a,b生成factor的分类；interaction（）生成交互项因子；sep=":"表示中间用：隔开；lex.order表示按照词汇顺序排列。
+```{r}
+#options(stringsAsFactors = FALSE)
+w=data.frame(a=c("q","w","e"),b=c(1,2,3),c=c(4,5,6))
+w
+str(w)
+options(stringsAsFactors = FALSE)
+w=data.frame(a=c("q","w","e"),b=c(1,2,3),c=c(4,5,6))
+w
+str(w)
+```
+stringsAsFactors = FALSE很多时候，在读取数据的时候，R语言会自动将之如"a","b"之类的字符串读取为factor，用stringsAsFactor=FALSE可以避免这种情况，仍然输出为字符串；而options(stringsAsFactors =FALSE是在全局运用，更改默认设置。所以也可以这样改：
+w=data.frame(a=c("q","w","e"),b=c(1,2,3),c=c(4,5,6),stringsasstringsAsFactors = FALSE)局部使用这船代码。
+
+# 矩阵运算 
+
+**王绍同**   
+
++ crossprod,%*%  #对于n维向量x，可以看成nxl阶矩阵或lxn阶矩阵。若x与y是相同维数的向量，则x%*%Y表示x与y作内积.函数crossprod()是内积运算函数(表示交叉乘积)，crossprod(x,y)计算向量x与y的内积，即t(x) %*% y'。crossprod(x)表示x与x的内积.
+```{r}
+x=1:5; y=2*1:5
+x%*%y
+crossprod(x)
+crossprod(x,y)
+A=array(1:9,dim=(c(3,3)))
+B=array(9:1,dim=(c(3,3)))
+A%*%B
+crossprod(A,B)==t(A)%*%B
+```
+
+
+
++tcrossprod;%o%   #tcrossprod(x,y)表示’x%*%t(Y)’，即x与y的外积，也称为叉积。tcrossprod(x)表示x与x作外积.
+
+```{r}
+x=1:5; y=2*1:5
+tcrossprod(x)
+tcrossprod(x,y)
+x%o%y
+A=array(1:9,dim=(c(3,3)))
+B=array(9:1,dim=(c(3,3)))
+tcrossprod(A,B)==A%*%t(B)
+```
+
++outer   #outer()是更为强大的外积运算函数，outer(x,y)计算向量二与y的外积，它等价于x %o%y
+函数。outer()的一般调用格式为
+      outer(x，y，fun=”*”)
+     其中x, y矩阵(或向量)，fun是作外积运算函数，缺省值为乘法运算。函数outer()在绘制三维曲面时非常有用，它可生成一个x和y的网格。
+     
+```{r}
+A=array(1:9,dim=(c(3,3)))
+B=array(9:1,dim=(c(3,3)))
+outer(A,B)
+```
+
++eigen   #对N阶方阵A，x为标量，v是非零的N维列向量，且满足Ax=xv ，则称x为矩阵A的特征值，v 是相对应于x 的特征向量。特征值的全体成为A的谱在r中的实现：在r中利用函数eigen(A)来求矩阵的特征值和特征向量，具体的调用格式为：以矩阵A为例说明此问题
+```{r}
+A=array(c(1,1,1,4,2,1,9,3,1),dim=c(3,3))
+D=eigen(A)
+D
+```
+
+
++svd   #函数svd(A)是对矩阵A作奇异值分解，即A =U%*%D%*%t(V)，其中U, V是正交阵，D为对角阵，也就是矩阵A的奇异值.svd(A)的返回值也是列表，svd(A)$d表示矩阵A的奇异值，即矩阵D的对角线上的元素.svd(A)$u对应的是正交阵U, svd(A) $v对应的是正交阵V.
+```{r}
+A<-t(array(c(1:8,10),dim=c(3,3)))
+SVD=svd(A)
+SVD
+```
+
++qr   #设A为m*n矩阵，如果存在m*m酉矩阵Q（即Q(H)Q=QQ(H)=I）和m*n阶梯形矩阵R，使得A=QR，那么此分解称为QR分解。QR分解在解决最小二乘问题、特征值计算等方面有着十分重要的作用
+```{r}
+A=(array(c(1:12),dim=c(4,3)));
+A
+QR=qr(A)
+QR
+```
+
++solve  #若求解线性方程组Ax=b，其命令形式为solve(A,b)，求矩阵A的逆，其命令形式为solve(A).设矩阵A=t(array(c(1:8,10),dim=c(3,3))),b<-c(1,1,1),则解方程组Ax=b的解x和求矩阵A的逆矩阵的命令如下
+```{r}
+A=t(array(c(1:8,10),dim=c(3,3)))
+b=c(1,1,1)
+x=solve(A,b)
+x
+solve(A)
+```
+
+
+# 逻辑与集合
+**徐加义**   
+ 1. 逻辑运算符
+
+**逻辑运算符是一系列，针对逻辑型和数值型向量的计算规则**
+
+ 1.1 向量的逻辑“与”运算
+“&” 查看向量x与向量y的元素，当两个向量对应位置上的元素都为TRUE，则在这个位置上返回一个TRUE   
+“&”的运算结果是一个**布尔值向量**
+```{r}
+x <- c(TRUE,FALSE,TRUE)
+y <- c(TRUE,TRUE,FALSE)
+x&y
+```
+
+ 1.2 向量的逻辑“或”运算
+“|” 查看向量a与向量b的元素，当两个向量对应位置上的元素中至少一个为TRUE，则在这个位置上返回一个TRUE  
+“|”的运算结果也是一个**布尔值向量**
+```{r}
+a <- c(2,0,TRUE,TRUE)
+b <- c(0,0,FALSE,TRUE)
+a|b
+```
+
+ 1.3 向量的逻辑“非”运算
+“！” 查看向量v的每个元素，并在对应位置返回相反的布尔值
+```{r}
+!TRUE
+v <- c(2,0,TRUE,F,3*2)
+!v
+```
+
+ 1.4 向量逻辑的“异或”运算
+"xor()" 比较两向量m、n对应位置上的布尔值元素，两值不等则返回TRUE，两值相等则返回FALSE
+```{r}
+xor(0, 1)
+xor(a, b)
+xor(x, y)
+```
+
+ 2. all() 与 any()函数  
+**给定一组逻辑向量，其元素全部为真吗？至少有一个值为真吗？**
+
+ 2.1 all()
+给定一组逻辑值向量，当其所有元素都为真时，返回**一个**布尔值TRUE
+```{r}
+all(x)
+z <- 1:5
+all(z > 3)
+all(z >= 1)
+```
+
+ 2.2 any()  
+给定一组逻辑值向量，当其中至少有一个元素为真时，返回**一个**布尔值TRUE
+```{r}
+any(x)
+any(z > 3)
+any(z > 5)
+```
+
+ 3. 向量的集合运算  
+
+ 3.1 取交集：intersect()
+"intersect()" 取两个向量的交集，集合的元素可以是数值，布尔值、字符串等
+```{r,warning=FALSE}
+intersect(1:5, 2:6)  #数值向量
+intersect(letters[1:5],letters[2:6])# 字符串向量
+intersect(c(T,F),c(T,T))  #布尔值向量#
+intersect(c('a','b',1,2,3,TRUE),c('b','c',2,3,4,TRUE))  #混合向量
+```
+
+ 3.2 取并集：union()  
+"union()" 取两个向量的并集，集合的元素可以是数值，布尔值、字符串等
+```{r,warning=FALSE}
+union(1:5, 2:6)  #数值向量
+union(letters[1:5],letters[2:6]) #字符串向量
+union(c(T,F),c(T,T))  #布尔值向量
+union(c('a','b',1,2,3,TRUE),c('b','c',2,3,4,TRUE))  #混合向量
+```
+
+ 3.3 寻找不同元素：setdiff()
+"setdiff(m, n)"将返回向量m中与向量n不同的元素
+```{r}
+m <- 1:4
+n <- 2:6
+setdiff(m, n)
+setdiff(n, m)# m、n的位置不同，返回结果也不同
+```
+
+ 3.4 判断向量元素是否相同：setequal()
+"setequal()"将判断两个向量所包含的元素是否完全相同（与顺序无关），若相同，则返回一个TRUE值
+```{r warning=FALSE}
+setequal(1:3, 3:1)
+setequal(1:3, c(1,2,2,3))
+setequal(x, y)
+setequal(1:3,1:4) #后一个向量包含前一个向量中没有的元素”4“，返回FALSE
+```
+
+ 4. which()函数
+**which函数能给出逻辑对象的TRUE位置索引，可用于索引满足特定条件的对象的位置**  
+**which函数可以对数组进行索引**
+```{r}
+which(x)
+which((1:12)%%2 == 0)
+which(letters == 'f')
+```
+
+```{r}
+m <- matrix(1:12, 3, 4)
+div.3 <- m %% 3 == 0
+which(div.3)
+# which(div.3, arr.ind = TRUE) "arr.ind =   TRUE" #允许在检索对象为数组时，返回数组索引
+rownames(m) <- paste("Case", 1:3, sep = "_")
+which(m %% 5 == 0, arr.ind = TRUE)
+```
+
+
+# 数组处理
+**张珊峰**   
+array
+
+数组array与矩阵类似，但是其维度可以大于2.数组可以通过array函数创建，形式如下：
+
+myarray<-array(data=NA, dim=lehgth(data), dimnames=NULL)
+
+其中data包含了数组中的数据，dim是一个表示维度的向量，而dimnames是可选的、各个维度名称标签的列表。
+```{r}
+wd1<-c("2018", "2019")
+wd2<-c("shanghai", "beijing", "nanjing")
+wd3<-c("xiaowang", "xiaoming", "xiaozhang", "xiaoli")
+myarray<-array(1:24, c( 2, 3, 4), dimnames = list( wd1,wd2,wd3) )
+myarray
+```
+aperm
+
+aperm是处理矩阵的一个函数，可以对维、行、列进行转换。
+
+aperm(a, perm=NULL)
+
+perm:原来数组的维度行、列、层分别为2,3,4，现在perm=3,1,2，3的意思是原来排在第三个的参数现在变成行数，1的意思是原来排在第一个的参数现在变为列数，2的意思是原来排在第二位的参数现在变为层数所以perm=（3,1，2）就是原来的（4,2,3）。
+
+```{r}
+myaperm<-aperm(myarray,c(3,1,2))
+
+myaperm
+
+```
+library(abind)
+用来合并数组，abind(..., along=N, rev.along=NULL, new.names=NULL,force.array=TRUE,
+make.names=use.anon.names, use.anon.names=FALSE,use.first.dimnames=FALSE, hier.names=FALSE, use.dnns=FALSE)
+along        合并array时遵从的维度
+
+rev.along    另一种确定合并维度的方式，along = N + 1 - rev.along
+
+new.names    合并之后新的维度名
+
+force.array  若为TRUE，则合并后的数据类型强行转化为array
+！
+
+```{r}
+a <- array(1:8, c(2, 2, 2))
+b <- array(9:16, c(2, 2, 2))
+abind(a, b, along = 1)
+abind(a, b, along = 2)
+abind(a, b, along = 3)
+```
+
+
+# 构建向量
+**朱谦、朱雅馨**   
+    
++ c
+```{r}
+c(1,23,4)
+c(1,c(23,1,2),4)
+c('1,2,3',1,2)
+c(T,1,2)
+```
+生成向量；如果函数内存在嵌套，则会展开；如果输入的标量类型不同，则会将整个向量转化为兼容性最强的那个类型，优先顺序为字符、数值、逻辑值。
+    
++ rep, rep_len
+```{r}
+rep(c(1,2),4)
+rep_len(c(1,2),4)
+```
+这两个函数都有两个需要输入的参数，
+rep函数将向量重复若干次，重复的次数为由第二个参数指定；
+rep_len函数第二个参数指定最终产生向量的长度。
+    
++ seq, seq_len, seq_along
+```{r}
+seq(from=1,to=2,by=0.1)
+seq_len(length.out=10)
+seq_along(along.with=c(11,c('',2,3),14,141,123,12))
+```
+seq(from = 1, to = 1, by = ((to - from)/(length.out - 1)),
+    length.out = NULL, along.with = NULL, ...)
+seq.int(from, to, by, length.out, along.with, ...)
+seq_along(along.with)
+seq_len(length.out)
+from：生成向量的起点。
+to：生成向量的终点。
+by：序列的增量，默认步长为1（可修改）。
+length.out：这个序列的输出长度。
+对于seq和seq.int来说，如果分数的话，将会被四舍五入。
+along.with：表示生成的向量为现有一向量元素的索引，常用于生成用以循环的对象。
+    
++ rev
+```{r}
+rev(1:10)
+```
+rev函数用于将向量逆转
+
++ sample
+```{r}
+set.seed(1)
+sample(x=1:10,size=20,replace = T,prob = 10:1)
+
+set.seed(2)
+sample(x=list(1:10,rev(10:1),5,2),size=2,replace = F)
+```
+sample是一个抽样用于抽样的函数，x是总体，可以是任意对象，size是样本大小，replace参数决定是否放回,prob参数用来给定权重和抽到的概率
+
+
++ choose, factorial, combn
+```{r}
+choose(4,2)
+factorial(4)
+choose(4,2)*factorial(2)
+combn(7:10,2)
+```
+choose返回组合的个数，factorial返回阶乘的结果，choose(n,k)*factorial(k)返回排列的个数，combn函数列举所有排列的可能
+  
++ (is/as).(character/numeric/logical/...)
+is...，判断对象是否为指定的类型
+as...，将对象强制转化为为指定的类型
+```{r}
+is.character(1:10)
+as.character(c(T,F,T,T))
+
+is.numeric(1:10)
+as.numeric(as.character(1:10))
+
+is.logical(c(T,F,T,T))
+set.seed(1)
+as.logical(sample(x=0:1,size=5,replace = T))
+```
+
+
+# 数组处理
+**蔡才培**   
+
++ array
++ dim
++ dimnames
++ aperm
++ library(abind)
+
+
+
+1.Array()函数创建数组。它需要向量作为输入，并使用 dim 参数的值，以创建一个数组
+错误用法：
+array(2,3,4)
+> array(2,3,4)
+Error in array(2, 3, 4) : 'dimnames' must be a list
+
+正确用法：
+>x<- array(2:5, c(2,4,2))
+>x
+, , 1
+
+     [,1] [,2] [,3] [,4]
+[1,]    2    4    2    4
+[2,]    3    5    3    5
+
+, , 2
+
+     [,1] [,2] [,3] [,4]
+[1,]    2    4    2    4
+[2,]    3    5    3    5
+
+2.可以通过使用dimnames参数给予名称添加到数组中的行，列和矩阵。
+ Create two vectors of different lengths.
+vector1 <- c(5,9,3)
+vector2 <- c(10,11,12,13,14,15)
+
+ Take these vectors as input to the array.
+result <- array(c(vector1,vector2),dim=c(3,3,2))
+print(result)
+vector1 <- c(5,9,3)
+vector2 <- c(10,11,12,13,14,15)
+column.names <- c("C1","C2","C3")
+row.names <- c("R1","R2","R3")
+matrix.names <- c("Matrix1","Matrix2")
+
+ Take these vectors as input to the array.
+result <- array(c(vector1,vector2),dim=c(3,3,2),dimnames = list(column.names,row.names,matrix.names))
+print(result)
+
+运行结果如下：
+, , Matrix1
+
+  R1 R2 R3
+C1  5 10 13
+C2  9 11 14
+C3  3 12 15
+
+, , Matrix2
+
+   R1 R2 R3
+C1  5 10 13
+C2  9 11 14
+C3  3 12 15
+
+访问数组元素
+ 检索第二个矩阵的第三行所有元素.
+print(result[3,,2])
+
+ 检索第一个矩阵的第一行的第三列所在位置的元素.
+print(result[1,3,1])
+
+ 输出第二个矩阵.
+print(result[,,2])
+
+操作数组元素
+ Create two vectors of different lengths.
+vector1 <- c(5,9,3)
+vector2 <- c(10,11,12,13,14,15)
+
+ Take these vectors as input to the array.
+array1 <- array(c(vector1,vector2),dim=c(3,3,2))
+
+ Create two vectors of different lengths.
+vector3 <- c(9,1,0)
+vector4 <- c(6,0,11,3,14,1,2,6,9)
+array2 <- array(c(vector1,vector2),dim=c(3,3,2))
+
+ create matrices from these arrays.
+matrix1 <- array1[,,2]
+matrix2 <- array2[,,2]
+
+ Add the matrices.
+result <- matrix1+matrix2
+print(result)
+
+运行结果
+     [,1] [,2] [,3]
+[1,]   10   20   26
+[2,]   18   22   28
+[3,]    6   24   30
+
+3.dim计算数组的行数和列数
+> x <- 1:12 ; dim(x) <- c(3,4)
+> x
+     [,1] [,2] [,3] [,4]
+[1,]    1    4    7   10
+[2,]    2    5    8   11
+[3,]    3    6    9   12
+
+
+4.aperm函数适用于矩阵转置
+x<-array(1:24,2:4)
+x
+x2<-aperm(x,c(2,1,3))
+x2
+
+
+> x<-array(1:24,2:4)
+> x
+, , 1
+
+     [,1] [,2] [,3]
+[1,]    1    3    5
+[2,]    2    4    6
+
+, , 2
+
+     [,1] [,2] [,3]
+[1,]    7    9   11
+[2,]    8   10   12
+
+, , 3
+
+     [,1] [,2] [,3]
+[1,]   13   15   17
+[2,]   14   16   18
+
+, , 4
+
+     [,1] [,2] [,3]
+[1,]   19   21   23
+[2,]   20   22   24
+
+> x2<-aperm(x,c(2,1,3))
+> x2
+, , 1
+
+     [,1] [,2]
+[1,]    1    2
+[2,]    3    4
+[3,]    5    6
+
+, , 2
+
+     [,1] [,2]
+[1,]    7    8
+[2,]    9   10
+[3,]   11   12
+
+, , 3
+
+     [,1] [,2]
+[1,]   13   14
+[2,]   15   16
+[3,]   17   18
+
+, , 4
+
+     [,1] [,2]
+[1,]   19   20
+[2,]   21   22
+[3,]   23   24
+
+
+5.library(abind)从GitHub上克隆abind包
+\name{abind}
+\alias{abind}
+\title{Combine multi-dimensional arrays}
+\description{
+Combine multi-dimensional arrays.  This is a
+ generalization of cbind and rbind.  Takes a sequence of
+ vectors, matrices, or arrays and produces a single array of
+ the same or higher dimension.
+}
+\usage{
+abind(..., along=N, rev.along=NULL, new.names=NULL, force.array=TRUE,
+      make.names=use.anon.names, use.anon.names=FALSE,
+      use.first.dimnames=FALSE, hier.names=FALSE, use.dnns=FALSE)
+}
+%- maybe also `usage' for other objects documented here.
+\arguments{
+  \item{\dots}{ Any number of vectors, matrices, arrays, or data frames.
+The dimensions of all the arrays must match, except on one dimension
+(specified by \code{along=}).  If these arguments are named, the name
+will be used for the name of the dimension along which the arrays are
+joined.  Vectors are treated as having a dim attribute of length one.
+
+Alternatively, there can be one (and only one) list argument supplied,
+whose components are the objects to be bound together.  Names of the
+list components are treated in the same way as argument names.
+}
+
+\item{along}{ (optional) The dimension along which to bind the arrays.
+The default is the last dimension, i.e., the maximum length of the dim
+attribute of the supplied arrays.  \code{along=} can take any
+non-negative value up to the minimum length of the dim attribute of
+supplied arrays plus one.  When \code{along=} has a fractional value, a
+value less than 1, or a value greater than N (N is the maximum of the
+lengths of the dim attribute of the objects to be bound together), a new
+dimension is created in the result.  In these cases, the dimensions of
+all arguments must be identical.  }
+
+\item{rev.along}{ (optional)
+Alternate way to specify the dimension along which to bind the arrays:
+\code{along = N + 1 - rev.along}.  This is provided mainly to allow easy
+specification of \code{along = N + 1} (by supplying
+\code{rev.along=0}).  If both \code{along} and \code{rev.along} are
+supplied, the supplied value of \code{along} is ignored.
+}
+
+\item{new.names}{ (optional)
+If new.names is a list, it is the first choice for the
+dimnames attribute of the result.  It should have the same
+structure as a dimnames attribute.  If the names for a
+particular dimension are \code{NULL}, names for this dimension are
+constructed in other ways.
+
+If \code{new.names} is a character vector, it is used for dimension
+names in the same way as argument names are used.  Zero
+length ("") names are ignored.
+}
+  \item{force.array}{ (optional) If \code{FALSE}, rbind or cbind are
+called when possible, i.e., when the arguments are all vectors, and
+along is not 1, or when the arguments are vectors or matrices or data
+frames and along is 1 or 2.  If rbind or cbind are used, they will
+preserve the data.frame classes (or any other class that r/cbind
+preserve).  Otherwise, abind will convert objects to class array.  Thus,
+to guarantee that an array object is returned, supply the argument
+\code{force.array=TRUE}.  Note that the use of rbind or cbind introduces
+some subtle changes in the way default dimension names are constructed:
+see the examples below.  }
+
+\item{make.names}{ (optional)
+If \code{TRUE}, the last resort for dimnames for the along
+dimension will be the deparsed versions of anonymous
+arguments.  This can result in cumbersome names when
+arguments are expressions.
+
+    <p>The default is \code{FALSE}.
+}
+
+
+\item{use.anon.names}{ (optional)
+  \code{use.anon.names}
+is a deprecated synonym for \code{make.names}.
+}
+  \item{use.first.dimnames}{ (optional)
+    When dimension names are present on more than one
+argument, should dimension names for the result be take from
+the first available (the default is to take them from the
+last available, which is the same behavior as
+\code{rbind} and \code{cbind}.)
+}
+\item{hier.names}{ (optional)
+  If \code{TRUE}, dimension names on the concatenated dimension will be
+  composed of the argument name and the dimension names of the objects
+  being bound.  If a single list argument is supplied, then the names of
+  the components serve as the argument names.  \code{hier.names} can
+  also have values \code{"before"} or \code{"after"}; these determine
+  the order in which the argument name and the dimension name are put
+  together (\code{TRUE} has the same effect as \code{"before"}).}
+\item{use.dnns}{ (default \code{FALSE}) Use names on dimensions, e.g.,
+  so that \code{names(dimnames(x))} is non-empty.  When there are
+  multiple possible sources for names of dimnames, the value of
+  \code{use.first.dimnames} determines the result.
+}
+}
+\details{
+The dimensions of the supplied vectors or arrays do not need
+to be identical, e.g., arguments can be a mixture of vectors
+and matrices.  \code{abind} coerces arguments by the addition
+of one dimension in order to make them consistent with other
+arguments and \code{along=}.  The extra dimension is
+added in the place specified by \code{along=}.
+
+The default action of abind is to concatenate on the last
+dimension, rather than increase the number of dimensions.
+For example, the result of calling abind with vectors is a
+longer vector (see first example below).  This differs from
+the action of \code{rbind} and cbind which is to return a matrix when
+called with vectors.  abind can be made to behave like cbind
+on vectors by specifying \code{along=2}, and like rbind by
+specifying \code{along=0}.
+
+The dimnames of the returned object are pieced together
+from the dimnames of the arguments, and the names of the
+arguments.  Names for each dimension are searched for in the
+following order: new.names, argument name, dimnames (or
+names) attribute of last argument, dimnames (or names)
+attribute of second last argument, etc.  (Supplying the
+argument \code{use.first.dimnames=TRUE} changes this to
+cause \code{abind} to use dimnames or names from the
+first argument first.  The default behavior is the same as
+for \code{rbind} and \code{cbind}: use dimnames
+from later arguments.)  If some names are supplied for the
+along dimension (either as argument names or dimnames in
+arguments), names are constructed for anonymous arguments
+unless \code{use.anon.names=FALSE}.
+}
+\value{
+
+  An array with a dim attribute calculated as follows.
+
+  Let \code{rMin=min(sapply(list(...), function(x) length(dim(x))))} and
+  \code{rMax=max(sapply(list(...), function(x) length(dim(x))))} (where
+  the length of the dimensions of a vector are taken to be 1).  Then \code{rMax} should be
+  equal to or one greater than \code{rMin}.
+
+  If \code{along} refers to an existing dimension, then the length of
+  the dim attribute of the result is \code{rMax}.  If \code{along} does
+  not refer to an existing dimension, then \code{rMax} should equal
+  \code{rMin} and the length of the dim attribute of the result will be \code{rMax+1}.
+
+\code{rbind} or \code{cbind} are
+called to compute the result if (a)
+\code{force.array=FALSE}; and (b) the result will be a
+two-dimensional object.
+
+}
+\author{Tony Plate \email{tplate@acm.org} and Richard Heiberger }
+\note{
+It would be nice to make \code{abind()} an S3 generic, but S3 generics
+cannot dispatch off anonymous arguments.
+
+The ability of \code{abind()} to accept a single list argument removes
+much of the need for constructs like \code{do.call("abind",
+  list.of.arrays)}.  Instead, just do \code{abind(list.of.arrays)}.  The
+direct construct is preferred because \code{do.call()} construct can
+sometimes consume more memory during evaluation.
+}
+
+\examples{
+ Five different ways of binding together two matrices
+x <- matrix(1:12,3,4)
+y <- x+100
+dim(abind(x,y,along=0))      binds on new dimension before first
+dim(abind(x,y,along=1))      binds on first dimension
+dim(abind(x,y,along=1.5))
+dim(abind(x,y,along=2))
+dim(abind(x,y,along=3))
+dim(abind(x,y,rev.along=1))  binds on last dimension
+dim(abind(x,y,rev.along=0))  binds on new dimension after last
+
+ Unlike cbind or rbind in that the default is to bind
+ along the last dimension of the inputs, which for vectors
+ means the result is a vector (because a vector is
+ treated as an array with length(dim(x))==1).
+abind(x=1:4,y=5:8)
+ Like cbind
+abind(x=1:4,y=5:8,along=2)
+abind(x=1:4,matrix(5:20,nrow=4),along=2)
+abind(1:4,matrix(5:20,nrow=4),along=2)
+ Like rbind
+abind(x=1:4,matrix(5:20,nrow=4),along=1)
+abind(1:4,matrix(5:20,nrow=4),along=1)
+ Create a 3-d array out of two matrices
+abind(x=matrix(1:16,nrow=4),y=matrix(17:32,nrow=4),along=3)
+ Use of hier.names
+abind(x=cbind(a=1:3,b=4:6), y=cbind(a=7:9,b=10:12), hier.names=TRUE)
+ Use a list argument
+abind(list(x=x, y=x), along=3)
+ Use lapply(..., get) to get the objects
+an <- c('x','y')
+names(an) <- an
+abind(lapply(an, get), along=3)
+}
+\keyword{ manip }% at least one, from doc/KEYWORDS
+\keyword{ array }% __ONLY ONE__ keyword per line
+
+
+
+
+# 运算符和赋值函数
+**黄武**   
+
+%in%
+%in%
+用法 a %in% table
+a值是否包含于table中，为真输出TURE，否者输出FALSE
+例如
+```{r }
+x <- c(1,1,1,0,0,1,1)
+x %in% 1
+x %in% c(1, 0)
+x %in% c(1, 2)
+```
+match
+match：匹配两个向量，返回x中存在的返回索引或TRUE、FALSE
+match函数使用格式有如下两种:
+第一种方便设置参数，返回x中元素在table中的位置
+```{r}
+match(x,c(1,0))#返回的是在c（1，0）里面的位置
+```
+=, <-, <<-
+这是几个简单的赋值运算符号
+若只通过标准的赋值运算符 <- ，是无法向上一环境层写入变量的。若想在上一环境层进行赋值行为，即向上一层次写入变量，则需要用到 <<- （superassignment）运算符啦~
+```{r}
+a <- 1.2
+b <- 2.2
+a == b
+a != b
+a > b
+a >= b
+a < b
+a <= b
+#<<- 单独说一下
+plusx <- function(x){
+        a <<- 1 + x
+        b <- 2 + x
+         x <- x * 2        }
+
+a
+# 注意：会输出Error: object 'a' not found
+b
+# 注意会输出：Error: object 'b' not found
+x <- 1
+
+plusx(x)
+a
+# 有输出为[1] 2
+b
+# Error: object 'b' not found
+x
+# [1] 1
+```
+$, [, [[, head, tail, subset
+$用于将变量选出
+[,]
+[[]]都是用于子集选取的
+对于向量和矩阵,[]和[[]]基本上一样； 但对于列表list，如[3]，相当于提取列表中的第3个子表的整体，输出结果还是个列表list；而[[3]]相当于直接提取第3个子表中的所有元素，输出结果就是数列或字符串或向量等与其中元素类型一致的东西。 实际中，对于列表，尽量采用[[]]直接提取其中的元素对象，不容易出错。
+```{r}
+attach(mtcars)
+colnames(mtcars)
+mtcars$mpg#选出mpg变量
+mtcars[2]#输出为第二列
+mtcars[[2]]#因为mtcars为矩阵，所以结果是一样的，输出的也为第二列cyl的内容
+
+```
+head取前五行
+tail输出最后5行
+subset(),从某一个数据框中选择出符合某条件的数据或是相关的列
+```{r}
+
+head(mtcars)
+tail(mtcars)
+data<-subset(mtcars,mpg>21.0)
+data
+```
+with
+with就是把所有操作都限制在数据框上。下面的例子就是说要在mtcars这个数据集上执行操作
+```{r}
+with(mtcars, plot(mpg, cyl))
+```
+
+assign, get
+assign函数在循环时候，给变量赋值，算是比较方便
+assign()功能就是对变量进行赋值；assign(x, value, ...)  # x为变量名，value为变量值
+get()函数只是在环境中搜索该变量名的变量，如果该变量不存在则返回异常
+y.vector<-with(data,get(yval))——表示在data数据框中读取列名称为yval的向量。
+get(x, pos = -1, envir = as.environment(pos), mode = "any",
+    inherits = TRUE)
+```{r}
+for (i in 1:3){
+    assign(paste("a", i, sep = ""), i:10)
+}
+ls()
+a1
+a2
+```
+```{r}
+get("%o%")
+
+## test mget
+e1 <- new.env()
+mget(letters, e1, ifnotfound = as.list(LETTERS))
+
+```
+
+
+
+# 基础数学
+**吕沁芸、朱爱璐**   
++ *, +, -, /, ^, %%, %/%
+这些一元和二元运算符对数值或复数向量（或可以强制转换为它们的对象）执行算术运算。
+  + *   乘法运算
+  + +   加法运算
+  + -   减法运算
+  + /   除法运算
+  + ^   求幂运算
+  + %%  取余运算
+  + %/% 整除运算
+```{r}
+x <- -1:12
+x
+x + 1
+2 * x + 3
+x %% 2 #-- is periodic
+x %/% 5
+```
++ abs, sign
+  + abs
+    abs(x) computes the absolute value of x; x	a numeric or complex vector or array.
+
+  + sign
+    返回带有x的相应元素符号的向量（如果数字分别为正数，零或负数，则分别返回1,0或-1）
+    
+```{r}
+x <- -3:3
+abs(x)
+sign(pi)    # == 1
+sign(-2:3)  # -1 -1 0 1 1 1
+```
++ acos, asin, atan, atan2
+三角函数
+它们分别计算反余弦，反正弦，反正切和双参数反正切
+  + acos
+    计算反余弦
+    
+  + asin
+    计算反正弦
+  
+  + atan
+    计算反正切
+    
+  + atan2
+    for positive arguments atan2(y, x) == atan(y/x)
+```{r}
+x <- seq(-1, 1, length.out = 10)
+y <- seq(-0.5, 0.5, length.out = 10)
+acos(x)
+asin(x)
+atan(x)
+atan2(y, x)
+```
++ sin, cos, tan
+三角函数
+它们分别计算正弦，余弦，正切
+  + sin
+    计算正弦
+    
+  + cos
+    计算余弦
+    
+  + tan
+    计算正切
+```{r}
+x <- seq(-2*pi, 2*pi, by = 1/2*pi)
+sin(x)
+cos(x)
+tan(x)
+```
+
+
+
+
+
+**程杏杏、冷雨轩**   
++ cummax, cummin, cumprod, cumsum, diff
+求累积最大值，求累积最小值，求累积乘积，求累积和，差分（都是返回一个向量）
+
+```{r}
+x<-1:4
+cummax(x) #求累积最大值，返回一个向量
+cummin(x) #求累积最小值，返回一个向量
+cumprod(x) #求累积乘积，返回一个向量
+cumsum(x) #求累积和，返回一个向量
+diff(x) #一阶差分，返回一个n-1的向量
+```
+
++ pmax, pmin
+pmax(x,y) 返回一个向量，它的元素是x[i],y[i]中的最大/小值
+
++ range
+返回一个向量，里面的元素为所求向量的最大值和最小值
+
++ mean, median, cor, sd, var
+返回向量的平均数、中位数、协方差、标准差、方差
+
++ rle
+行程编码(Run Length Encoding), Rle对象用两个属性来表示原向量，一个是值，一个是长度
+
+```{r}
+x<-c(1,2,3,4)
+y<-c(2,3,4,5)
+z<-1:4
+pmax(x,y) #返回一个向量，它的元素是x[i],y[i]中的最大值
+pmin(x,y) #返回一个向量，它的元素是x[i],y[i]中的最小值
+mean(x) #计算这组数的平均数
+median(x) #计算这组数的中位数
+cor(x,y) #计算向量x和y的协方差
+sd(x) #计算这组数的标准差
+var(x) #计算这组数的方差
+```
+```{r}
+x<-c(1,2,3,4)
+rle(x) #返回各个元素的长度和值
+```
+
+
+
+
+# 处理函数的函数
+**邱伟栋**   
++ function
+  自定义一个新的函数
+  函数名<-function(parameters){#自定义函数的函数名，设置函数输入的参数
+
+                              statemens#定义函数需要做的事情
+
+  return(expression)}#函数返回值
++ missing
+  判断函数中这个参数是否被赋,若没被赋值则返回TRUE
+  例如
+  myplot <- function(x, y) { #定义一个画散点图的函数，参数是x,y
+  if(missing(y)) { #如果输入的参数没有给y赋值
+    y <- x#则y = x
+    x <- 1:length(y) #x = 1到y向量的长度
+  }
+  plot(x, y) #画出x,y的散点图
+}
++ on.exit
+  在定义的函数中加入这个函数，在函数结束之后执行这个函数里的语句
+  例如
+  in_dir <- function(dir, code) {
+                                 old <- getwd() 
+                                 on.exit(setwd(old)) #在这个函数结束之后将路径重新设置回原来的位置
+                                 force(code)
+  }
+
++ return#函数结束后返回值
+invisible#使变量不显示
+例如
+f1 <- function(x) x
+f2 <- function(x) invisible(x) #两个函数都是返回x
+f1(1)  # f1会输出1
+f2(1)  # f2不会输出1
+还有诸如stop       #终止函数执行
+        system.time#表达式计算计时
+        menu       #选择菜单（字符列表菜单）
+        is.function#判断是否是函数
+        
+        
+        
+
+
+# 向量与矩阵
+**吴锦**   
++ t  
+矩阵转置
++ diag  
+（1）提取矩阵的对角元素，并将它保存成向量的格式。如果所要提取的矩阵不是方阵，diag函数仍然可以调用；（2）生成给定对角元素的对角阵；（3）括号内添加的元素是一个标量，则可以生成指定行列的单位阵。
++ sweep  
+使用sweep(x, MARGIN, STATS, FUN="-",check.margin = TRUE, ...)对矩阵进行运算。 MARGIN为1，表示行的方向上进行运算，为2表示列的方向上运算；STATS是运算的参数；FUN为操作需要用到的四则运算，默认是减法；check.margin表示是否需要检查维度是否适宜的问题，默认为TRUE。
++ as.matrix, data.matrix  
+as.matrix将其参数转换成一个矩阵。data.matrix将数据框转换成数值矩阵 
+
+
+
+
+# 列表与数据框
+
+**徐梦佳**   
++ list, unlist
++ data.frame, as.data.frame
++ split
++ expand.grid
++ list, unlist
+
++列表是R语言中的对象，它包含不同类型的元素，比如数字，字符串，向量和另一个列表等。
++一个列表还可以包含一个矩阵或一个函数作为它的元素。
++使用"["可以从列表中返回列表，使用“[[”、“$”可以将列表中的元素取出。
+
+```{r}
+#创建一个列表
+mylist1 <- list("Red", "Green", c(21,32,11), TRUE, 51.23, 119.1)
+mylist1
+```
+
+```{r}
+#命名列表元素
+mylist2 <- list(c("Jan","Feb","Mar"), matrix(c(1:6), nrow=2), list("green",12.3))
+names(mylist2) <- c("1st Quarter", "A_Matrix", "A Inner list")
+mylist2
+```
+
+```{r}
+#合并列表中的元素
+list1 <- list(1,2,3)
+list2 <- list("Sun","Mon","Tue")
+merged.list <- c(list1,list2)
+merged.list
+```
+
+
++转换列表为向量
++列表可以被转换为一个向量，以便能用于进一步操纵向量的元素。
++所有关于向量的算术运算可以在列表被转换为矢量之后被应用。
++要做到这一点转换，使用unlist() 函数。它以列表作为输入，并产生一个向量。
+
+```{r}
+# 创建列表
+list1 <- list(1:5)
+list2 <- list(10:14)
+
+# 将列表转换成向量
+v1 <- unlist(list1)
+v2 <- unlist(list2)
+
+# 进行向量的算术运算
+result <- v1+v2
+result
+```
+
+
+
+
+
++ data.frame, as.data.frame
++一般被翻译为数据框，由行和列组成，与矩阵不同的是，每个列可以是不同的数据类型，而矩阵是必须相同的。
++数据框每一列有列名，每一行也可以指定行名。如果不指定行名，默认从1开始自增的Sequence来标识每一行。
+
+```{r}
+#使用data.frame()初始化数据框
+student <- data.frame(ID = c(11,12,13), Name = c("Devin", "Edward", "Wenli"),
+                      Gender = c("M","M","F"))
+student
+```
+
+
++使用read.table() read.csv()读取一个文本文件，返回的也是一个Data Frame对象。
++读取数据库也是返回Data Frame对象。
+
+
+有三种办法可以从高维数据结构中选取子集：
++ 使用多个向量
++ 使用单个向量
++ 使用矩阵
+```{r}
+student[, 1]
+student[2, ]
+```
+
+
++数据框的保留和简化
+```{r}
+#数据框的保留
+df <- data.frame(a = 1:2, b = 1:2)
+str(df[1])
+```
+
+```{r}
+#数据框的保留
+str(df[, "a", drop = FALSE])
+```
+
+
+```{r}
+#数据框的简化
+str(df[[1]])
+```
+
+```{r}
+#数据框的简化
+str(df[, "a"])
+```
+
+
++as.data.frame()是常用的类型转换函数，把对象变成数据框。
+
+```{r}
+#将矩阵转换为数据框
+a <- matrix(1:12, nrow = 3)
+a
+b <- as.data.frame(a)
+b
+```
+
++编辑数据框
+```{r}
+#使用edit()函数
+newdataframe = edit(b)
+```
+
+```{r}
+#使用fix()函数
+fix(b)
+```
+
+
+
++ split
++函数split()可以按照分组因子，把向量，矩阵和数据框进行适当的分组。
++它的返回值是一个列表，代表分组变量每个水平的观测。
+```{r}
+#用法split(x, f, drop = FALSE, ...)
+#x是待分组的对象
+#f是函数，一个factor或者list,分组的规则
+#drop是逻辑值，是否f中的某一个level没有用上则被弃用
+d <- data.frame(gender=c("M","M","F","M","F","F"),age=c(47,59,21,32,33,24),
+                income=c(55000,88000,32450,76500,123000,45650),
+                over25=rep(c(1,1,0),times=2))
+d
+split(d$income, list(d$gender,d$over25)) #将income按照gender、over25分组
+```
+
+
+
+
++ expand.grid
++提供的向量或因子所有组合构成的数据框。
+
+```{r}
+expand.grid(h = c(60,80), w = c(100, 300), sex = c("Male", "Female"))
+#第一列就是括号内第一项数（字符）依次循环 
+#第二列就是括号内第二项的数（字符）每个重复第一项数的个数之后循环 
+#第三列就是括号内弟三项的数（字符）每个重复第一项数（字符）的个数乘以第二项的个数之后再循环
+```
+
+
+
+# 控制流
+**金科、罗阳**   
++ if, &&, || (short circuiting)
+
+  控制结构if-else在某个给定条件为真时执行语句。也可以同时在条件为假时执行另外的语
+  句。语法为：
+  if (cond) statement
+  if (cond) statement1 else statement2
+  示例如下：
+  if (is.character(grade)) grade <- as.factor(grade) 
+  if (!is.factor(grade)) grade <- as.factor(grade) else print("Grade already is a          factor") 
+
++ for, while
+  for循环重复地执行一个语句，直到某个变量的值不再包含在序列seq中为止。语法为：
+  for (var in seq) statement
+  在下例中：5.4 控制流 for (i in 1:10) print("Hello") 
+  单词Hello被输出了10次。
+  
+  while循环重复地执行一个语句，直到条件不为真为止。语法为：
+  while (cond) statement
+  例如
+  i <- 10 
+  while (i > 0) {print("Hello"); i <- i - 1} 
+  又将单词Hello输出了10次。请确保括号内while的条件语句能够改变，即让它在某个时刻不再为
+  真——否则循环将永不停止！
+
++ next
+
+  next用于循环体中终止某一次循环，可以在for循环，while循环和repeat循环。注意：当在循环体   中遇到next时，它只是终止了这一次循环，而还要继续执行下一次循环.
+  
+  例如
+ vec<-c(2,4,5,7)
+ for(i in vec) {
+     if(i%%2==0)
+         next
+     print(i)
+ }
+ [1] 5
+ [1] 7
+
+
++break
+
+  当循环中遇到break语句时，循环将立即终止，程序控制在循环之后的下一个语句中恢复。
+  
+例如
+v <- c("Hello","loop")
+cnt <- 2
+repeat {
+   print(v)
+   cnt <- cnt + 1
+
+   if(cnt > 5) {
+      break
+   }
+}
+[1] "Hello" "loop" 
+[1] "Hello" "loop" 
+[1] "Hello" "loop" 
+[1] "Hello" "loop" 
+
+
+
+  
+
++ switch
+  switch根据一个表达式的值选择语句执行。语法为：
+  switch(expr, ...) 
+  其中的...表示与expr的各种可能输出值绑定的语句。
+  
+  例如
+  feelings <- c("sad", "afraid") 
+   for (i in feelings) 
+   print( 
+ switch(i, 
+ happy = "I am glad you are happy", 
+ afraid = "There is nothing to fear", 
+ sad = "Cheer up", 
+ angry = "Calm down now" 
+ ) 
+ ) 
+
++ ifelse
+  ifelse结构是if-else结构比较紧凑的向量化版本，其语法为：
+  ifelse(cond, statement1, statement2) 
+  若cond为TRUE，则执行第一个语句；若cond为FALSE，则执行第二个语句。
+  示例如下：
+  ifelse(score > 0.5, print("Passed"), print("Failed")) 
+  outcome <- ifelse (score > 0.5, "Passed", "Failed") 
+
+
+
+# apply函数
+**王超**   
+
++ lapply, sapply, vapply
++ apply
++ tapply
++ replicate
+
++ apply
+对数组或者列表按照元素或元素构成的子集合进行迭代，并将当前元素或子集合作为参数调用某个指定函数.
+apply(X, MARGIN,FUN,...)
+参数X为数组（包括矩阵），MARGIN为指定数组（矩阵）维，1代表行，2代表列，c（1,2）代表行和列.FUN是用来计算的函数.
+```{r}
+A <- matrix(1:10,nr=2)
+A
+apply(A,1,mean)
+```
+
++ lapply,sapply, vapply
+lapply(X, FUN, ...)
+sapply(X, FUN, ..., simplify = TRUE, USE.NAMES = TRUE)
+vapply(X, FUN, FUN.VALUE, ..., USE.NAMES = TRUE)
+lapply=list apply和sapply=simplified apply=unlist（lapply） 都可以用于处理列表和数据框.使用方法相同，差别在于：lapply的返回值为列表，sapply的返回值为数据框.对于sapply，如果simplify=FALSE，则等价于lapply.vapply类似于sapply，但是提供了第三个参数用以指明返回值的形式，可以看作返回值的模板。
+```{r}
+lst <- list(A=c(1:5),B=c(6:10))
+lst
+lapply(lst,sum)
+sapply(lst,sum)
+vapply(lst,function(x) c(min(x), max(x)), c(min=0, max=0))
+```
+
+
++ tapply
+tapply(X, INDEX, FUN = NULL, ..., default = NA, simplify = TRUE)
+table apply对不规则数组使用函数.第一个参数代表数据，第二个参数表示如何对数据进行分组操作，第三个参数指定每一个分组内应用什么函数,simplify是逻辑变量,是否简化输入结果，取值为TRUE（默认值）。也就是说tapply函数就是把数据按照一定方式分成不同的组，再在每一组数据内进行某种运算。
+```{r}
+m <- matrix(c(1:10), nrow=2)
+m
+ind <- matrix(c(rep(1,5), rep(2,5)), nrow=2)
+ind
+tapply(m, ind, mean)
+
+```
+
+
++ replicate
+用于sapply对表达式的重复求值(这通常涉及随机数生成)的常见使用。它可以将某个函数重复运行N次，常常用来生成较复杂的随机数。
+```{r}
+game<- function() {
+  n <- sample(1:6,2,replace=T)
+  return(sum(n))
+}
+replicate(n=100,game())
+```
+
+
+
+# 排序和制表
+**陈星明、陈玲倩**
+
++ duplicated, unique
++ merge
++ order, rank, quantile
++ sort
++ table, ftable
+
+
+
++ duplicated
+
+duplicated()函数用于确定一个向量或数据框的重复元素中下标较小元素，并返回一个逻辑的向量指出哪些元素（行）是重复的。
+缺失值被看作是相等的，但NaN不等于NA_real_。
+```{r}
+x <- c( 1:5, 3:7, 0:8)
+duplicated(x)
+```
+
+确切的唯一元素
+duplicated(x)把x中重复元素找出，！duplicated(x)找出没有重复的元素，x[!duplicated(x)]把x中没有重复的元素挑出，最后赋予xu
+```{r}
+ x1 <- x[!duplicated(x)]
+ x1
+```
+
+
+## 参数fromLast
+逻辑值，指定重复的确定是否从另一边开始。
+```{r}
+#x2与x1类似，具有相同元素，但顺序不同
+ x2 <- x[!duplicated(x,fromLast = TRUE)]
+ x2
+```
+
+## 参数incomparables
+不能用于比较的值的向量，FALSE是一个特殊的值，参数设为FALSE意味着所有值可以被比较，参数可能为接受传递的值而不是默认的。它将被强制转换为与x有相同的类型。
+```{r}
+x3 <- c(9:20, 'a')
+duplicated(x3,incomparables = FALSE)
+```
+
+## anyDuplicated
+返回第一个ture的位置，即，第一个重复元素的位置
+anyDuplicated(.)函数是any(duplicated(.))函数更有效的一个“一般化”的捷径。 any(duplicated(.))返回的是布尔值。
+```{r}
+anyDuplicated(x)
+anyDuplicated(x, fromLast = TRUE) 
+```
+
+
+
+
++ unique
+
+返回对象的不同取值，如unique(c(1,1,2,3)) 返回1 2 3
+duplicated 判断对象的每个取值是否重复，如duplicated(c(1,1,2,3)) 返回 FALSE TRUE FALSE FALSE ，其中T对应的为重复的值 
+```{r}
+#作用和 (x1 <- x[!duplicated(x)])一样，去重
+unique(x)
+```
+
+
+
+
++ merge
+
+merge()函数合并数据框，其强大之处在于在两个不同的数据框中标识共同的列或行。
+merge(x, y ,by.x = ,by.y = ,all = )
+### merge()函数参数：
+
+    x: 第一个数据框.
+
+    y: 第二个数据框.
+
+    by, by.x, by.y: 指定两个数据框中匹配列名称。缺省使用两个数据框中相同列名称。
+
+    all, all.x, all.y: 指定合并类型的逻辑值。缺省为false，all=FALSE (仅返回匹配的行).
+
+## merge() 函数支持4种类型数据合并:
+Natural join: 仅返回两数据框中匹配的数据框行，参数为：all=FALSE.
+
+Full outer join: 返回两数据框中所有行， 参数为： all=TRUE.
+
+Left outer join: 返回x数据框中所有行以及和y数据框中匹配的行，参数为： all.x=TRUE.
+
+Right outer join: 返回y数据框中所有行以及和x数据框匹配的行，参数为： all.y=TRUE.
+
+```{r}
+ID <- c(1,2,3,4)
+name <- c('A','B','C','D')
+score <- c(60,70,80,90)
+student1 <- data.frame(ID,name)
+student2 <- data.frame(ID,score)
+total_student1 <- merge(student1,student2,by='ID')
+total_student1
+```
+
+
+```{r}
+ID <- c(1,2,3,4,5)
+score1 <- c(60,70,80,90,100)
+student21 <- data.frame(ID,score1)
+
+#返回两数据框中匹配的数据框行
+total_student11 <- merge(student1,student21,by='ID',all = F)
+
+#返回两数据框中所有行
+total_student12 <- merge(student1,student21,by='ID',all = T)
+
+#返回x数据框中所有行以及和y数据框中匹配的行
+total_student13 <- merge(student1,student21,by='ID',all.x=T)
+
+#返回y数据框中所有行以及和x数据框匹配的行
+total_student14 <- merge(student1,student21,by='ID',all.y=T)
+```
+
+
+```{r}
+df1 <- data.frame(id = c(1:6),weights = c(62:67),heights =  c(162:167) )
+df2 <- data.frame(id = c(2,4,6,7),weights = c(64:67),heights =  c(162:165))
+df1$sex <- c('f','m','f','f','m','f')
+df2$sex <- c('f','f','m','m')
+
+#只设定by = 'id'，输出的为sex.x和sex.y
+merge(df1,df2,by = 'id')
+
+#设定by = c('id','sex')，输出为id和sex这两列共有的数值
+merge(df1,df2,by = c('id','sex'))
+
+```
+
+
+
+
++ order, rank, sort
+
+在R中，和排序相关的函数主要有三个：sort()，rank()，order()。
+    sort(x)是对向量x进行排序，返回值排序后的数值向量。rank()是求秩的函数，它的返回值是这个向量中对应元素的“排名”。而order()的返回值是对应“排名”的元素所在向量中的位置。
+
+```{r}
+x0<-c(97,93,85,74,32,100,99,67)
+sort(x0)
+order(x0)
+rank(x0)
+```
+
+
+
++ quantile
+求给定概率的样本分位数
+```{r}
+data <- c(1,2,3,4,5,6,7,8,9,10)
+quantile(data,0.5)
+quantile(data,c(0.25,0.75))
+
+##产生一序列百分位比值
+quantile(data,seq(0.1,1,0.1))
+
+##只取百分号下面的数值
+unname(quantile(data,seq(0.1,1,0.1)))
+```
+
+
+
+
+
++ table
+
+对应的就是统计学中的列联表，是一种记录频数的方法。
+```{r}
+y <- c(1,2,3,2,1,1,5,6,4,5,1)
+table(y)
+```
+
+```{r}
+##提取table()中的元素
+names(table(y))
+```
+
+```{r}
+##提取table()中的频率
+as.numeric(table(y))
+```
+
+```{r}
+##提取table()中指定频率的数据
+y1 <- table(y)
+y2 <- as.data.frame(y1)
+y2[which(y2$Freq==1),] 
+
+```
+
++ ftable
+创建平面列联表
+```{r}
+x <- mtcars[c("cyl", "am", "gear")]
+table(x)
+ftable(x)
+```
+
+
+
+
+# 线性模型
+**孙婷婷、江璇**   
+
++ fitted, predict, resid, rstandard
++ lm, glm
++ hat, influence.measures
+
+lm ### 利用观测值创建线性模型
+glm ### 广义线性模型
+fitted ### 根据数据点拟合数据
+
+回归诊断 #
+1、正态性（QQ图）
+norm.test（）——正态性检验，p值大于0.05为正态
+计量的残差图
+residuals()和resid()——残差
+rstandard()——标准化残差
+rstudent()——学生化残差
+influence.measures(model)——model是由lm或者glm构成的对象，对回归诊断作总括
+anova（<lm>）——简单线性模型拟合的方差分析（确定各个变量的作用）
+anova（<lm1>,<lm2>）——比较两个模型（检验原假设为不同）
+
+2、误差的独立性——car包提供Duerbin_Watson检验函数
+3、线性——car包crPlots（）绘制成分残差图（偏残差图）可以看因变量与自变量之间是否呈线性
+4、同方差性——car包ncvTest（）原假设为误差方差不变，若拒绝原假设，则说明存在异方差性
+5、多重共线性——car包中的vif（）函数计算VIF方差膨胀因子，一般vif>2存在多重共线性问题
+
+
+异常点分析（影响分析）#
+hatvalues（）和hat（）——帽子矩阵
+dffits（）——DFFITS准则
+cooks.distance()——Cook统计量，值越大越有可能是异常值点
+covratio（）——COVRATIO准则
+kappa（z，exact=FALSE）——多重共线性，计算矩阵的条件数k,若k<100则认为多重共线性的程度很小；100<=k<=1000则认为存在中等程度或较强的多重共线性；若k>1000则认为存在严重的多重共线性。exact是逻辑变量，当其为TRUE时计算精准条件数，否则计算近似条件数。
+step()——逐步回归，观察AIC和残差平方和最小，广义线性模型也可以使用
+add1()——前进法
+drop()——后退法
+
+
+预测#
+predict（<sol>，<newdataframe>，level=0.95，interval="prediction"）——回归预测，sol是模型，newdataframe是待预测数据框，level设置置信度，interval="prediction"表示结果要计算置信区间
+
+predict(glm()，data.frame(x=3.5)，type="response")——预测广义线性回归模型，type=“response”表示结果为概率值，否则为预测值y
+
+plot（lm(y~x)，which=1:4，caption=c(“Residuals vs Fitted”，“Normal Q-Q plot”，“Scale-Location plot”，“Cook's distance plot”)）——画回归模型残差图，which为1表示画普通残差与拟合值的残差图，2表示画正态QQ的残差图，3表示画标准化残差的开方与拟合值的残差图，4表示画Cook统计量的残差图；caption是图题的内容。
+
+
+
+
+# 矩阵运算
+
+**郭佳林**   
+
++ crossprod, tcrossprod
++ eigen, qr, svd
++ %*%, %o%, outer
++ rcond
++ solve
++ crossprod, tcrossprod
++ eigen, qr, svd
++ %*%, %o%, outer
++ rcond
++ solve
+crossprod,内积运算函数，交叉乘积
+tcrossprodx,与y的外积
+eigen,求特征值和特征向量
+qr分解解决最小二乘问题
+svd奇异值分解，主成分分析
+%*%矩阵乘法
+%o%未找到
+outer,解两个矩阵的外积
+rcond，未找到
+solve,求逆矩阵

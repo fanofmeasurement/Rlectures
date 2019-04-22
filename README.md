@@ -22,3 +22,9 @@
 
 ### 练习
 #### [R的函数练习一](https://github.com/cacolola/Rlectures/blob/master/R_fun_exer.Rmd)
+
+### 部分作业展示
+#### R的基本函数集锦
+##### [2019春季学期研究生周二班](https://github.com/cacolola/Rlectures/blob/master/part_homework/R_basicfun_postg_1_19spr.Rmd)
+##### [2019春季学期研究生周三班](https://github.com/cacolola/Rlectures/blob/master/part_homework/R_basicfun_postg_2_19spr.Rmd)
+##### [2019春季学期本科班](https://github.com/cacolola/Rlectures/blob/master/part_homework/R_basicfun_underg_19spr.Rmd)

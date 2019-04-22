@@ -21,7 +21,7 @@
 
 
 ### 练习
-#### [R的函数练习一](https://github.com/cacolola/Rlectures/blob/master/R_fun_exer.Rmd)
+#### [1 R的函数练习一](https://github.com/cacolola/Rlectures/blob/master/R_fun_exer.Rmd)
 
 ### 部分作业展示
 #### 1. R的基本函数集锦

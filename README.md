@@ -19,6 +19,10 @@
 ### 3 描述统计
 #### [3.1 基本方法](https://github.com/cacolola/Rlectures/blob/master/R_descri.Rmd)
 
+### 4 均值差异比较
+#### [4.1 t检验](https://github.com/cacolola/Rlectures/blob/master/R_meandiff_1.Rmd)
+#### [4.2 ANOVA](https://github.com/cacolola/Rlectures/blob/master/R_meandiff_2.Rmd)
+
 
 ### 练习
 #### [1 R的函数练习一](https://github.com/cacolola/Rlectures/blob/master/R_fun_exer.Rmd)
